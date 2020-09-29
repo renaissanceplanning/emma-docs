@@ -1,0 +1,118 @@
+.. module:: emma.labeled_array
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Contents:
+
+
+Labeled Arrays
+===============
+Labeled arrays provide conveniences for accessing data in ndarrays
+by dimension names and labels. They are the primary data structure
+used throughout the emma modules. 
+
+**Classes and Functions**
+- `LbAxis`: defines an array axis with an axis name and labels. Facilitiates
+  label-based array indexing, slicing, querying, and assignment.
+
+- `Impression`: a collection of `LbAxis` objects that implicitly define an
+  array's structure. Impressions are a labeled array building block, having
+  structure but no data. Includes methods to facilitate array construction
+  and casting.
+
+- `LbArray`: the labeled array, containing data as a numpy or pytables
+  ndarray, wrapped in `LbAxis` objects to make data retrieval by axis name(s)
+  and label(s) simple. Includes methods to facilitate array replication.
+
+- `LbViewer`: provides mechanisms to "view" data in an array. Viewers impose
+  contiguity in defining array slices. Non-contiguous criteria are generated
+  as separte views to ensure exposed data are views rather than copies of the
+  underlying `LbArray` data.
+
+- `alignAxes`: reorganizes axes in an `LbArray` to match the arrangement in a
+  separate `LbArray` with the same axis names.
+
+- `alignAxisLabels`: reorganizes axis labels in an `LbArray` to match labels
+  in a seprate `LbAxis`.
+
+- `dfToLabeledArray`: creates a labeled array from a pandas DataFrame.
+
+- `openLbArray_HDF`: loads a labeled array from an on-disk array (H5 file).
+  Arrays constructed with H5 file specs are intialized on-disk and parameters
+  for reloading the array from the H5 file are stored as attributes.
+
+- `broadcast1dByAxis`: takes a 1d array and cast it into dimensions defined
+  by a labeled array (useful in array modification applications).
+
+- `reindexDf`: reindexes a pandas DataFrame to conform to the order and length
+  of a given `LbAxis.`
+
+- `inheritValues`: propagates values at an aggregate scale to finer scale based
+  on multi-level index relationships.
+
+- `sharesByAxis`: summarizes a labeled array and reports shares by provided
+  axes.
+
+- `ShadowAxis`\`Shadow`: A simple class to relate two labeled arrays to 
+  facilitate procedural mimesis.
+
+
+LbAxis
+----------------------
+.. autoclass:: LbAxis
+    :members:
+
+
+Impression
+----------------------
+.. autoclass:: Impression
+    :members:
+
+
+LbArray
+----------------------
+.. autoclass:: LbArray
+    :members:
+
+
+LbViewer
+----------------------
+.. autoclass:: LbViewer
+    :members:
+
+
+ShadowAxis
+----------------------
+.. autoclass:: Shadow
+    :members:
+
+
+Functions
+------------
+.. autofunction:: alignAxes
+
+
+.. autofunction:: alignAxisLabels
+
+
+.. autofunction:: broadcast1dByAxis
+
+
+.. autofunction:: dfToLabeledArray
+
+
+.. autofunction:: inheritValues
+
+
+.. autofunction:: openLbArray_HDF
+
+
+.. autofunction:: reindexDf
+
+
+.. autofunction:: sharesByAxis
+
+
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`

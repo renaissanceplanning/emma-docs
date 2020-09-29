@@ -1,0 +1,1103 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Labeled Arrays &#8212; EMMA 0.1.0 documentation</title>
+    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="OD (Origin-Destination)" href="od.html" />
+    <link rel="prev" title="IPF" href="ipf.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="od.html" title="OD (Origin-Destination)"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="ipf.html" title="IPF"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">EMMA 0.1.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Labeled Arrays</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <span class="target" id="module-emma.labeled_array"></span><div class="toctree-wrapper compound">
+</div>
+<div class="section" id="labeled-arrays">
+<h1>Labeled Arrays<a class="headerlink" href="#labeled-arrays" title="Permalink to this headline">¶</a></h1>
+<p>Labeled arrays provide conveniences for accessing data in ndarrays
+by dimension names and labels. They are the primary data structure
+used throughout the emma modules.</p>
+<p><strong>Classes and Functions</strong>
+- <cite>LbAxis</cite>: defines an array axis with an axis name and labels. Facilitiates</p>
+<blockquote>
+<div><p>label-based array indexing, slicing, querying, and assignment.</p>
+</div></blockquote>
+<ul class="simple">
+<li><p><cite>Impression</cite>: a collection of <cite>LbAxis</cite> objects that implicitly define an
+array’s structure. Impressions are a labeled array building block, having
+structure but no data. Includes methods to facilitate array construction
+and casting.</p></li>
+<li><p><cite>LbArray</cite>: the labeled array, containing data as a numpy or pytables
+ndarray, wrapped in <cite>LbAxis</cite> objects to make data retrieval by axis name(s)
+and label(s) simple. Includes methods to facilitate array replication.</p></li>
+<li><p><cite>LbViewer</cite>: provides mechanisms to “view” data in an array. Viewers impose
+contiguity in defining array slices. Non-contiguous criteria are generated
+as separte views to ensure exposed data are views rather than copies of the
+underlying <cite>LbArray</cite> data.</p></li>
+<li><p><cite>alignAxes</cite>: reorganizes axes in an <cite>LbArray</cite> to match the arrangement in a
+separate <cite>LbArray</cite> with the same axis names.</p></li>
+<li><p><cite>alignAxisLabels</cite>: reorganizes axis labels in an <cite>LbArray</cite> to match labels
+in a seprate <cite>LbAxis</cite>.</p></li>
+<li><p><cite>dfToLabeledArray</cite>: creates a labeled array from a pandas DataFrame.</p></li>
+<li><p><cite>openLbArray_HDF</cite>: loads a labeled array from an on-disk array (H5 file).
+Arrays constructed with H5 file specs are intialized on-disk and parameters
+for reloading the array from the H5 file are stored as attributes.</p></li>
+<li><p><cite>broadcast1dByAxis</cite>: takes a 1d array and cast it into dimensions defined
+by a labeled array (useful in array modification applications).</p></li>
+<li><p><cite>reindexDf</cite>: reindexes a pandas DataFrame to conform to the order and length
+of a given <cite>LbAxis.</cite></p></li>
+<li><p><cite>inheritValues</cite>: propagates values at an aggregate scale to finer scale based
+on multi-level index relationships.</p></li>
+<li><p><cite>sharesByAxis</cite>: summarizes a labeled array and reports shares by provided
+axes.</p></li>
+<li><p><cite>ShadowAxis</cite>`Shadow`: A simple class to relate two labeled arrays to
+facilitate procedural mimesis.</p></li>
+</ul>
+<div class="section" id="lbaxis">
+<h2>LbAxis<a class="headerlink" href="#lbaxis" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="emma.labeled_array.LbAxis">
+<em class="property">class </em><code class="sig-prename descclassname">emma.labeled_array.</code><code class="sig-name descname">LbAxis</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">labels</span></em>, <em class="sig-param"><span class="n">levels</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#emma.labeled_array.LbAxis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines an axis by names and labels to facilitate indexing a labeled
+array.</p>
+<p>From an axis, users can get the index locations corresponding to addresses
+in an ndarray based on feature names (see <cite>get_loc</cite>). To retreive the
+labels for a known set of indices, use the axis’s <cite>labels</cite> attribute,
+which is a Pandas Index (<cite>axis.labels[[0,1,2]]</cite>, e.g.).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>String</em>) – Each axis is given a name which is found as an attribute in any
+LbArray constructed from the axis, providing for dynamic axis naming
+in the labeled array. Axis names should be unique for natural naming
+to function predictably.</p></li>
+<li><p><strong>labels</strong> (<em>Iterable</em>) – Labels represent the names for each index along the axis. They must
+be unique. Labels are converted to a Pandas index when the axis is
+initialized. If a data frame is given the columns are converted to a
+MultiIndex.</p></li>
+<li><p><strong>levels</strong> (<em>[</em><em>String</em><em>,</em><em>..</em><em>]</em><em>, </em><em>default=None</em>) – If <cite>labels</cite> should generate a MultiIndex (hierarchical mappings),
+level names can be specified here. If None, levels are referenced
+by index. If a data frame is provided as <cite>labels</cite>, the column names
+are used as level names unless otherwise specified here.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt id="emma.labeled_array.LbAxis.n">
+<code class="sig-name descname">n</code><a class="headerlink" href="#emma.labeled_array.LbAxis.n" title="Permalink to this definition">¶</a></dt>
+<dd><p>Length of this axis.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="emma.labeled_array.LbAxis._parent_">
+<code class="sig-name descname">_parent_</code><a class="headerlink" href="#emma.labeled_array.LbAxis._parent_" title="Permalink to this definition">¶</a></dt>
+<dd><p>To facilitate easy data access from a labeled array, its constituent
+axes are linked to it by setting the LbArray object as the parent of
+each axis object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#emma.labeled_array.LbArray" title="emma.labeled_array.LbArray">LbArray</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="emma.labeled_array.LbAxis.addLevel">
+<code class="sig-name descname">addLevel</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">labels</span></em>, <em class="sig-param"><span class="n">level_name</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">left_on</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">right_on</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#emma.labeled_array.LbAxis.addLevel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a new level to this axis’s labels. The new labels are expected
+to merge many-to-one with existing labels or be a series of the
+same length as existing labels.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>labels</strong> (<em>pandas DataFrame</em><em> or </em><em>Series</em>) – The new labels to be added as a sepearte level on this axis.
+If a data frame is provided, the new labels are aligned to
+existing labels through a merge, and <cite>left_on</cite>, and <cite>right_on</cite>
+must be provided. If a series is provided, the new labels
+are assumed to be well-ordered and are concatenated to the
+existing labels.</p></li>
+<li><p><strong>level_name</strong> (<em>[</em><em>String</em><em>,</em><em>..</em><em>]</em><em>, </em><em>default=None</em>) – If <cite>labels</cite> is a series, provide a name for the new label
+mappings. If None, the series <cite>name</cite> attribute is used, if
+it exists; otherwise, raises <cite>RuntimeError</cite></p></li>
+<li><p><strong>left_on</strong> (<em>String</em><em> or </em><em>[</em><em>String</em><em>,</em><em>..</em><em>]</em>) – If <cite>labels</cite> is a data frame, provide the level name(s) in the
+current axis dimensions for aligning the new labels with
+existing labels.</p></li>
+<li><p><strong>right_on</strong> (<em>String</em><em> or </em><em>[</em><em>String</em><em>,</em><em>..</em><em>]</em>) – If ‘labels` is a data frame, provide the column names(s) in the
+data frame for aligning the new labels with existing labels.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>MergeError:</strong> – New labels cannot be merged with existing labels in a m-to-1 join.</p></li>
+<li><p><strong>ValueError:</strong> – New label names collide with existing label names.</p></li>
+<li><p><strong>RuntimeError:</strong> – Labels are provided in a series with no <cite>name</cite> attribute
+    and no <cite>names</cite> argument.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="emma.labeled_array.LbAxis.extend">
+<code class="sig-name descname">extend</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">new_labels</span></em><span class="sig-paren">)</span><a class="headerlink" href="#emma.labeled_array.LbAxis.extend" title="Permalink to this definition">¶</a></dt>
+<dd><p>(FUTURE)</p>
+<p>Add one or more labels to the axis. The new label(s) will be coerced
+to the same type as existing labels, if possible. Extending the axis
+changes the shape of the parent object, which may be expensive.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="emma.labeled_array.LbAxis.get_loc">
+<code class="sig-name descname">get_loc</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#emma.labeled_array.LbAxis.get_loc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the index location of the provided label(s) on this axis.
+Labels to find are passed as a series of arguments (<cite>get_loc(“Lbl1”,
+“Lbln”)). To use an iterable container of zones (list or 1darray,
+e.g.), use `*</cite> (<cite>get_loc(*[“Lbl1”, “Lbln”])</cite>).</p>
+<p>If the axis labels are stored as a MultiIndex, provide keyword args
+to identify the index labels.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>indices</strong> – A list of indices for the requested labels is always returned,
+even if only a single label is requested.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>[Int,..]</p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>KeyError:</strong> – If the label is not in the axis’s <cite>labels</cite> attribute.</p></li>
+<li><p><strong>ValueError:</strong> – Is multiple keywords are provided but <cite>labels</cite> is a
+    simple index.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="emma.labeled_array.LbAxis.to_dict">
+<code class="sig-name descname">to_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#emma.labeled_array.LbAxis.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts this axis to a dictionary. The axis name is the key for the
+main dictionary.  If <cite>labels</cite> is a MultiIndex,`levels` are used to
+assign key names in a nested dictionary.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="emma.labeled_array.LbAxis.to_frame">
+<code class="sig-name descname">to_frame</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#emma.labeled_array.LbAxis.to_frame" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts this axis to pandas data frame. If <cite>labels</cite> is a MultiIndex,
+<cite>levels</cite> are used to assign column names. Otherwise, a single column
+is returned with the name of the axis.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="impression">
+<h2>Impression<a class="headerlink" href="#impression" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="emma.labeled_array.Impression">
+<em class="property">class </em><code class="sig-prename descclassname">emma.labeled_array.</code><code class="sig-name descname">Impression</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">axes</span></em><span class="sig-paren">)</span><a class="headerlink" href="#emma.labeled_array.Impression" title="Permalink to this definition">¶</a></dt>
+<dd><p>The Impression class records axis details of an uninitialized labeled
+array. It is a building block for the LbArray class and useful for
+propagating LbArrays in an analytical stream.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>axes</strong> (<em>[</em><em>LbAxis_object</em><em>, </em><em>..</em><em>]</em>) – The labeled array is constructed using a collection of LbAxis
+objects that provide axis names and labels for name-based
+indexing.</p>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt id="emma.labeled_array.Impression.shape">
+<code class="sig-name descname">shape</code><a class="headerlink" href="#emma.labeled_array.Impression.shape" title="Permalink to this definition">¶</a></dt>
+<dd><p>The shape of any ndarray conforming to this impression, based on the
+axes provided to construct it.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>(Int, ..)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="emma.labeled_array.Impression.ndim">
+<code class="sig-name descname">ndim</code><a class="headerlink" href="#emma.labeled_array.Impression.ndim" title="Permalink to this definition">¶</a></dt>
+<dd><p>The number of dimensions in any ndarray conforming to this impression.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="emma.labeled_array.Impression.cast">
+<code class="sig-name descname">cast</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">new_axes</span></em>, <em class="sig-param"><span class="n">drop</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">squeeze</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#emma.labeled_array.Impression.cast" title="Permalink to this definition">¶</a></dt>
+<dd><p>Replicate this impression’s axes into new dimensions, specified
+by one or multiple LbAxis objects. Dimensions in this array
+can be dropped when casting (using the <cite>drop</cite> arg) or selected
+by label values using keyword arguments.</p>
+<dl class="simple">
+<dt>new_axes: LbAxis or [LbAxis,…]</dt><dd><p>Labeled axis object(s) defining the dimensions into which this
+impressions (selected) axes will be cast.</p>
+</dd>
+<dt>drop: [LBAxis or String,…], default=None</dt><dd><p>Specify any axes to be excluded from the new impression using the
+axis object or name.</p>
+</dd>
+<dt>squeeze: Boolean, default=False</dt><dd><p>If True, axes that have only a single label will be dropped and
+the dimensionality of this impression will be reduced before casting
+into new dimensions. If False, this impression’s dimensionats are
+retained and then cast into the new dimensions.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="emma.labeled_array.Impression.fill">
+<code class="sig-name descname">fill</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="n">hdf_store</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">node_path</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">atom</span><span class="o">=</span><span class="default_value">Float64Atom(shape=(), dflt=0.0)</span></em>, <em class="sig-param"><span class="n">driver</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">overwrite</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#emma.labeled_array.Impression.fill" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fill this impression with data, returning a labeled array
+(LbArray) object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>array-like</em><em>, </em><em>scalar</em><em>, or </em><em>constructor</em>) – The data to fill this impression with.</p></li>
+<li><p><strong>hdf_store</strong> (<em>String</em><em>, </em><em>default=None</em>) – If using an on-disk array to store the filled impression, give
+the path to the H5 file.</p></li>
+<li><p><strong>node_path</strong> (<em>String</em><em>, </em><em>default=None</em>) – The node path in the H5 hierarchy within the <cite>hdf_store</cite>.</p></li>
+<li><p><strong>name</strong> (<em>String</em><em>, </em><em>default=None</em>) – The name of the new node to be created.</p></li>
+<li><p><strong>atom</strong> (<em>tb.Atom</em>) – The atom (data type) of the new array.</p></li>
+<li><p><strong>driver</strong> (<em>String</em><em>, </em><em>default=None</em>) – The HDF connection driver.</p></li>
+<li><p><strong>overwrite</strong> (<em>Boolean</em><em>, </em><em>default=False</em>) – If True, the existing node at <em>`node_path`/`name`</em> (if any) will
+be discarded and replaced with the new node.</p></li>
+<li><p><strong>kwargs</strong> – Keywords for data initialization if <cite>data</cite> is a constructor.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>filled_array</strong> – A labeled array with axes matching those of this impression
+and data as provided to the method.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#emma.labeled_array.LbArray" title="emma.labeled_array.LbArray">LbArray</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="emma.labeled_array.Impression.impress">
+<code class="sig-name descname">impress</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">drop</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">squeeze</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">fill_with</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">hdf_store</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">node_path</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">atom</span><span class="o">=</span><span class="default_value">Float64Atom(shape=(), dflt=0.0)</span></em>, <em class="sig-param"><span class="n">driver</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">overwrite</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">constr_kwargs</span><span class="o">=</span><span class="default_value">{}</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#emma.labeled_array.Impression.impress" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a new impression based on this impression. The new
+impression retains axis details (shape and labels). The impression
+can be made based on axis criteria passed as keyword arguments.
+Optionally, data can be provided to “fill” the resulting impresssion,
+returning a new LbArray object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>drop</strong> (<em>[</em><em>LBAxis</em><em> or </em><em>String</em><em>,</em><em>..</em><em>]</em><em>, </em><em>default=None</em>) – Specify any axes to be excluded from the new impression using the
+axis object or name. Axes used for keyword selection cannot be
+dropped.</p></li>
+<li><p><strong>squeeze</strong> (<em>Boolean</em><em>, </em><em>default=False</em>) – If True, axes that have only a single label will be dropped and
+the dimensionality of the new impression reduced. If False,
+the returned impression has the same number of dimensions as the
+source.</p></li>
+<li><p><strong>fill_with</strong> (<em>array-like</em><em>, </em><em>scalar</em><em>, or </em><em>constructor</em>) – The data to fill this impression with.</p></li>
+<li><p><strong>hdf_store</strong> (<em>String</em><em>, </em><em>default=None</em>) – If using an on-disk array to store the filled impression, give
+the path to the H5 file.</p></li>
+<li><p><strong>node_path</strong> (<em>String</em><em>, </em><em>default=None</em>) – The node path in the H5 hierarchy within the <cite>hdf_store</cite>.</p></li>
+<li><p><strong>name</strong> (<em>String</em><em>, </em><em>default=None</em>) – The name of the new node to be created.</p></li>
+<li><p><strong>atom</strong> (<em>tb.Atom</em>) – The atom (data type) of the new array.</p></li>
+<li><p><strong>driver</strong> (<em>String</em><em>, </em><em>default=None</em>) – The HDF connection driver.</p></li>
+<li><p><strong>overwrite</strong> (<em>Boolean</em><em>, </em><em>default=False</em>) – If True, the existing node at <em>`node_path`/`name`</em> (if any) will
+be discarded and replaced with the new node.</p></li>
+<li><p><strong>= {}</strong> (<em>constr_kwargs</em>) – If filling the impression with a constructor (np.ones, e.g.), pass
+any constructor function kwargs in a dictionary.</p></li>
+<li><p><strong>kwargs</strong> – kwargs can be passed with keys corresponding to axis names and
+values corresponding to labels in the given axis. For example
+<cite>a.take(origins=[1,2,3], destinations=[4,5,6])</cite> or
+<cite>a.take(**{“origins”:[1,2,3], “destination”:[4,5,6]})</cite>.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="lbarray">
+<h2>LbArray<a class="headerlink" href="#lbarray" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="emma.labeled_array.LbArray">
+<em class="property">class </em><code class="sig-prename descclassname">emma.labeled_array.</code><code class="sig-name descname">LbArray</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="n">axes</span></em>, <em class="sig-param"><span class="n">desc</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">hdf_store</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">node_path</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">atom</span><span class="o">=</span><span class="default_value">Float64Atom(shape=(), dflt=0.0)</span></em>, <em class="sig-param"><span class="n">driver</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">overwrite</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#emma.labeled_array.LbArray" title="Permalink to this definition">¶</a></dt>
+<dd><p>The LbArray class allows users to slice and index ndarray objects
+using axis names and labels instead of indices.</p>
+<p>Standard index-based techniques for slicing ndarrays remain available
+in labeled arrays. For example, basic indexing (<cite>lb_array[(0, 1, 2)]</cite> or
+advanced indexing (<cite>lb_array[0,:,[1,2]]</cite>) should work as on any normal
+ndarray. However, data can also be accessed using labels, as follows:</p>
+<blockquote>
+<div><p><cite>lb_array.foo[[“bar”, “baz”]]</cite> will return all values corresponding to the
+labels “bar” and “baz” in the “foo” dimension. These lookups can be chained,
+such that <cite>lb_array.foo[“bar”].spam[“ham”, “eggs”].etc[“ad nauseum”]</cite></p>
+<p>Chained lookups call the <cite>take</cite> method, which often provides more
+succint ways to retrieve select data
+(<a href="#id1"><span class="problematic" id="id2">`</span></a>lb_array.take(foo=”bar”, spam=[“ham”, “eggs”], etc=”ad nauseum”))</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>ndarray</em><em> or </em><em>constructor</em>) – <p>The ndarray holds multi-dimensional data. An existing array
+(including an on-disk pytables array) can be used to
+construct the labeled array.  Alternatively the user can pass
+an array constructor, such as <cite>np.ones</cite>, to initialize a new
+array.</p>
+<p>The <cite>data</cite> attribute for an LbArray is always a pytables array.
+If a numpy array or constructor are given as <cite>data</cite>, an in-memory
+array is generated from the original data.</p>
+</p></li>
+<li><p><strong>axes</strong> (<em>[</em><a class="reference internal" href="#emma.labeled_array.LbAxis" title="emma.labeled_array.LbAxis"><em>LbAxis</em></a><em>,</em><em>..</em><em>]</em>) – (see Impression)</p></li>
+<li><p><strong>desc</strong> (<em>String</em><em>, </em><em>default=None</em>) – A description of the contents of the skim.</p></li>
+<li><p><strong>hdf_store</strong> (<em>String</em><em>, </em><em>default=None</em>) – If using an on-disk array to store the array and initialize data, give
+the path to the H5 file. If <cite>data</cite> is an existing pytables array and
+<cite>hdf_store</cite> is provided, the data will be replicated in the new node.</p></li>
+<li><p><strong>node_path</strong> (<em>String</em><em>, </em><em>default=None</em>) – The node path in the H5 hierarchy within the <cite>hdf_store</cite>.</p></li>
+<li><p><strong>name</strong> (<em>String</em><em>, </em><em>default=None</em>) – The name of the new node to be created.</p></li>
+<li><p><strong>atom</strong> (<em>tb.Atom</em>) – The atom (data type) of the new array.</p></li>
+<li><p><strong>driver</strong> (<em>String</em><em>, </em><em>default=None</em>) – The HDF connection driver.</p></li>
+<li><p><strong>overwrite</strong> (<em>Boolean</em><em>, </em><em>default=False</em>) – If True, the existing node at <em>`node_path`/`name`</em> (if any) will
+be discarded and replaced with the new node.</p></li>
+<li><p><strong>kwargs</strong> – Keyword args can be given that are passed through to the constructor
+method call if a constructor is given for <cite>data</cite>.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt id="emma.labeled_array.LbArray.size">
+<code class="sig-name descname">size</code><a class="headerlink" href="#emma.labeled_array.LbArray.size" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number cells in the array.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Integer</p>
+</dd>
+</dl>
+</dd></dl>
+
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#emma.labeled_array.Impression" title="emma.labeled_array.Impression"><code class="xref py py-class docutils literal notranslate"><span class="pre">Impression</span></code></a></p>
+</div>
+<dl class="py method">
+<dt id="emma.labeled_array.LbArray.cast">
+<code class="sig-name descname">cast</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">new_axes</span></em>, <em class="sig-param"><span class="n">copy_data</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">drop</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">squeeze</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">hdf_store</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">node_path</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">atom</span><span class="o">=</span><span class="default_value">Float64Atom(shape=(), dflt=0.0)</span></em>, <em class="sig-param"><span class="n">driver</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">overwrite</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">init_val</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#emma.labeled_array.LbArray.cast" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns an ‘impression’ of this labeled array with additional axes
+defined. The impression is an uninitialized labeled array that
+retains axis details (shape and labels), but broadcasts these into
+one or more new axes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>new_axes</strong> (<a class="reference internal" href="#emma.labeled_array.LbAxis" title="emma.labeled_array.LbAxis"><em>LbAxis</em></a><em> or </em><em>[</em><a class="reference internal" href="#emma.labeled_array.LbAxis" title="emma.labeled_array.LbAxis"><em>LbAxis</em></a><em>,</em><em>..</em><em>]</em>) – Labeled axis object(s) defining the dimensions into which an
+impression of this array will be stamped.</p></li>
+<li><p><strong>copy_data</strong> (<em>Boolean</em><em>, </em><em>default=True</em>) – If True, data in this array will be cast (repetively propagated)
+into the new dimensions. If False, a blank impression is returned
+that can subsequently be filled with data using <cite>Impression.fill</cite>.</p></li>
+<li><p><strong>drop</strong> (<em>[</em><em>LBAxis</em><em> or </em><em>String</em><em>,</em><em>..</em><em>]</em><em>, </em><em>default=None</em>) – Specify any axes to be excluded from the new array by axis object
+or by name. Cannot be used if <cite>copy_data</cite> is True.</p></li>
+<li><p><strong>squeeze</strong> (<em>Boolean</em><em>, </em><em>default=False</em>) – If True, axes that have only a single label will be dropped and
+the dimensionality of the array selection reduced. If False,
+the returned array has the same number of dimensions as the
+source array.</p></li>
+<li><p><strong>hdf_store</strong> (<em>String</em><em>, </em><em>default=None</em>) – If using an on-disk array to store the filled impression, give
+the path to the H5 file.</p></li>
+<li><p><strong>node_path</strong> (<em>String</em><em>, </em><em>default=None</em>) – The node path in the H5 hierarchy within the <cite>hdf_store</cite>.</p></li>
+<li><p><strong>name</strong> (<em>String</em><em>, </em><em>default=None</em>) – The name of the new node to be created.</p></li>
+<li><p><strong>atom</strong> (<em>tb.Atom</em>) – The atom (data type) of the new array.</p></li>
+<li><p><strong>driver</strong> (<em>String</em><em>, </em><em>default=None</em>) – The HDF connection driver.</p></li>
+<li><p><strong>init_value</strong> (<em>var</em>) – The initial value of all cells in the new array (if <cite>copy_data</cite> is
+False).</p></li>
+<li><p><strong>overwrite</strong> (<em>Boolean</em><em>, </em><em>default=False</em>) – If True, the existing node at <em>`node_path`/`name`</em> (if any) will
+be discarded and replaced with the new node.</p></li>
+<li><p><strong>kwargs</strong> – Keyword arguments specifying a selection from this array to
+cast into new dimensions.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>casted</strong> – If <cite>copy_data</cite> is True, an LbArray is returned with data
+from the original array replicated in new dimensions.
+Otherwise, a new impression is made that can be filled with
+fresh data.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#emma.labeled_array.Impression" title="emma.labeled_array.Impression">Impression</a> or <a class="reference internal" href="#emma.labeled_array.LbArray" title="emma.labeled_array.LbArray">LbArray</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="emma.labeled_array.LbArray.copy">
+<code class="sig-name descname">copy</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">hdf_store</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">node_path</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">driver</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">overwrite</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#emma.labeled_array.LbArray.copy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Copy this array’s contents to a new labeled array with the
+same axis names and labels. Optional arguments allow HDF
+storage in the specified file and node (overwriting existing
+content if directed).</p>
+<p>If args are provided, they focus on copying the data into a new
+h5 data store node. Otherwise an in-memory copy (numpy) as returned.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>hdf_store</strong> (<em>String</em><em>, </em><em>default=None</em>) – If using an on-disk array to store the filled impression, give
+the path to the H5 file.</p></li>
+<li><p><strong>node_path</strong> (<em>String</em><em>, </em><em>default=None</em>) – The node path in the H5 hierarchy within the <cite>hdf_store</cite>.</p></li>
+<li><p><strong>name</strong> (<em>String</em><em>, </em><em>default=None</em>) – The name of the new node to be created.</p></li>
+<li><p><strong>driver</strong> (<em>String</em><em>, </em><em>default=None</em>) – The HDF connection driver.</p></li>
+<li><p><strong>overwrite</strong> (<em>Boolean</em><em>, </em><em>default=False</em>) – If casting to an on-disk array at an existing node, the
+node will be replaced with new data if overwrite=True.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>copied</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#emma.labeled_array.LbArray" title="emma.labeled_array.LbArray">LbArray</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="emma.labeled_array.LbArray.dissolve">
+<code class="sig-name descname">dissolve</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">axes</span></em>, <em class="sig-param"><span class="n">levels</span></em>, <em class="sig-param"><span class="n">aggfuncs</span></em>, <em class="sig-param"><span class="n">hdf_store</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">node_path</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">overwrite</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">driver</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#emma.labeled_array.LbArray.dissolve" title="Permalink to this definition">¶</a></dt>
+<dd><p>Simplify this array by aggregating values along the specified
+axes at the specified levels. Multiple aggregation statistics
+can be requested, generating a new axis called “agg” in the
+resulting array.</p>
+<p>This method relies on the Pandas <cite>DataFrame.agg</cite> method.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>axes</strong> (<em>String</em><em>, </em><em>Int</em><em>, or </em><a class="reference internal" href="#emma.labeled_array.LbAxis" title="emma.labeled_array.LbAxis"><em>LbAxis</em></a>) – The axes (by name, index, or object) on which to dissolve
+this array’s data. All axes provided are asumed to use a
+MultiIndex.</p></li>
+<li><p><strong>levels</strong> (<em>String</em><em> or </em><em>Int</em>) – The levels at which to dissove data in each axis. Levels
+should be listed such that they can be zipped with the
+<cite>axes</cite>.</p></li>
+<li><p><strong>aggfuncs</strong> (<em>function</em><em>, </em><em>str</em><em>, </em><em>list</em>) – <p>Function to use for aggregating the data. If a function, must
+either work when passed a DataFrame or when passed to
+DataFrame.apply.</p>
+<p>Accepted combinations are:
+- function
+- string function name
+- list of functions and/or function names, e.g. [np.sum, ‘mean’]</p>
+</p></li>
+<li><p><strong>hdf_store</strong> (<em>String</em><em>, </em><em>default=None</em>) – If using an on-disk array to store the filled impression, give
+the path to the H5 file.</p></li>
+<li><p><strong>node_path</strong> (<em>String</em><em>, </em><em>default=None</em>) – The node path in the H5 hierarchy within the <cite>hdf_store</cite>.</p></li>
+<li><p><strong>name</strong> (<em>String</em><em>, </em><em>default=None</em>) – The name of the new node to be created. node name
+in the hdf file where data will be stored.</p></li>
+<li><p><strong>overwrite</strong> (<em>Boolean</em><em>, </em><em>default=False</em>) – If casting to an on-disk array at an existing node, the
+node will be replaced with new data if overwrite=True.</p></li>
+<li><p><strong>args</strong> – Positional arguments to pass to <cite>aggfuncs</cite></p></li>
+<li><p><strong>kwargs</strong> – Keyword arguments to pass to <cite>aggfuncs</cite></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>dissolved_array</strong> – A new labeled array with simplified axes, aggregated values, and
+(if multiple aggfuncs are given) a new axis called “agg” with
+labels corresponding to aggregations generated.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#emma.labeled_array.LbArray" title="emma.labeled_array.LbArray">LbArray</a></p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><code class="xref py py-meth docutils literal notranslate"><span class="pre">pd.DataFrame.agg()</span></code></p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="emma.labeled_array.LbArray.flatten">
+<code class="sig-name descname">flatten</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#emma.labeled_array.LbArray.flatten" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates a flattened numpy array from this array’s <cite>data</cite> attribute.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="emma.labeled_array.LbArray.mean">
+<code class="sig-name descname">mean</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">by_axes</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#emma.labeled_array.LbArray.mean" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the mean value for each cell in this array, grouping along the
+specified axes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>by_axes</strong> (<em>[</em><a class="reference internal" href="#emma.labeled_array.LbAxis" title="emma.labeled_array.LbAxis"><em>LbAxis</em></a><em>, </em><em>String</em><em>, or </em><em>Int</em><em>,</em><em>..</em><em>]</em>) – Values will averaged along the given axes, provided
+as LbAxis objects, axis names, or indices.</p></li>
+<li><p><strong>kwargs</strong> – Use keyword arguments to select slices of the array
+prior to summarization.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="emma.labeled_array.LbArray.put">
+<code class="sig-name descname">put</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#emma.labeled_array.LbArray.put" title="Permalink to this definition">¶</a></dt>
+<dd><p>Assign data to selected portions of this labeld array based on
+provided axis criteria.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>array_like</em>) – The data to be put into this array in the cells specified by the
+provided criteria.</p></li>
+<li><p><strong>kwargs</strong> – Keyword arguments providing axis/label details for producing views
+of the LbArray’s data. Provided data will be pushed to the array
+via these views.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>None - this array’s data are updated with <cite>data</cite> based on <cite>kwargs</cite></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="emma.labeled_array.LbArray.sum">
+<code class="sig-name descname">sum</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">by_axes</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#emma.labeled_array.LbArray.sum" title="Permalink to this definition">¶</a></dt>
+<dd><p>Summarize the value totals in this array, grouping along the
+specified axes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>by_axes</strong> (<em>[</em><a class="reference internal" href="#emma.labeled_array.LbAxis" title="emma.labeled_array.LbAxis"><em>LbAxis</em></a><em>, </em><em>String</em><em>, or </em><em>Int</em><em>,</em><em>..</em><em>]</em>) – Values will summarized along the given axes, provided
+as LbAxis objects, axis names, or indices.</p></li>
+<li><p><strong>kwargs</strong> – Use keyword arguments to select slices of the array
+prior to summarization.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="emma.labeled_array.LbArray.take">
+<code class="sig-name descname">take</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">squeeze</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#emma.labeled_array.LbArray.take" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve values from the ndarray based on axis names and labels.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>squeeze</strong> (<em>Boolean</em><em>, </em><em>default=False</em>) – If True, axes that have only a single label will be dropped and
+the dimensionality of the array selection reduced. If False,
+the returned array has the same number of dimensions as the
+source array.</p></li>
+<li><p><strong>kwargs</strong> – kwargs can be passed with keys corresponding to axis names and
+values corresponding to labels in the given axis. For example
+<cite>a.take(origins=[1,2,3], destinations=[4,5,6])</cite> or
+<cite>a.take(**{“origins”:[1,2,3], “destination”:[4,5,6]})</cite>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>filtered_array</strong> – This method ALWAYS returns a copy of the original data, filtered
+based on the requested labels. The primary advantage of this is that
+the taken datasets do not prevent the original larger set from
+being garbage-collected (see notes on views versus copies &lt;here
+<cite>https://docs.scipy.org/doc/numpy/reference/arrays.indexing.html#arrays-indexing</cite>&gt;)
+However, it also means that repeatedly taking large chunks of data
+interactively may consume substantial amounts of memory. The take
+method is envisioned to serve as a means of filtering data for analysis
+purposes, and those analytical means can (and should) generally be
+encapsulated within a localized scope to efficiently release memory
+allocated to filtered copies once they’ve served their purpose.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#emma.labeled_array.LbArray" title="emma.labeled_array.LbArray">LbArray</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="emma.labeled_array.LbArray.to_array">
+<code class="sig-name descname">to_array</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#emma.labeled_array.LbArray.to_array" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates a numpy array from this array’s <cite>data</cite> attribute.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="emma.labeled_array.LbArray.to_frame">
+<code class="sig-name descname">to_frame</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">column_name</span></em><span class="sig-paren">)</span><a class="headerlink" href="#emma.labeled_array.LbArray.to_frame" title="Permalink to this definition">¶</a></dt>
+<dd><p>Flattens this array’s <cite>data</cite> and <cite>axes</cite> attributes to generates a
+long pandas data frame with a hierarchical index.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>column_name</strong> (<em>String</em>) – The name of the column in the output data frame containing this
+array’s data.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="lbviewer">
+<h2>LbViewer<a class="headerlink" href="#lbviewer" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="emma.labeled_array.LbViewer">
+<em class="property">class </em><code class="sig-prename descclassname">emma.labeled_array.</code><code class="sig-name descname">LbViewer</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">lb_array</span></em>, <em class="sig-param"><span class="n">collation</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#emma.labeled_array.LbViewer" title="Permalink to this definition">¶</a></dt>
+<dd><p>The LbView class provides a view into an LbArray object’s data.
+When updates are made to the data in the view, they are also reflected
+in the source data. Views can only be obtained through basic slicing, so
+the LbView class presents simple views using a generator to iterate over
+basic slices of the source data.</p>
+<p>Since views reference another array’s data, they can disrupt garbage
+collection, preventing memory allocated to the source ndarray from being
+released while the view object persists. Views are primarily intended to
+facilitate selective updating of the source ndarray and should be
+encapsulated within the processes handling the udpates.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lb_array</strong> (<a class="reference internal" href="#emma.labeled_array.LbArray" title="emma.labeled_array.LbArray"><em>LbArray</em></a>) – The labeled array from which to generate view.</p></li>
+<li><p><strong>collation</strong> (<em>&quot;Discrete&quot;</em><em>, </em><em>&quot;Contiguous&quot;</em><em>, </em><em>&quot;ByLevel&quot;</em><em>, </em><em>default=None</em>) – <p>-If “Discrete” or not specified, a separate view will be generated for
+each axis label requested, even if multiple labels could be retreived
+through basic slicing. This produces array views of consistent and
+predictable shapes.</p>
+<p>-If “Contiguous”, contiguous indices will be consolidated into the smallest
+number of single views possible. View shapes may vary.</p>
+<p>-If “ByLevel”, contiguous indices are only consolidated within each
+index level. View shapes may vary. <em>forthcoming, currently unsupported</em></p>
+</p></li>
+<li><p><strong>**kwargs</strong> – Keyword arguments providing axis/label details for producing views
+of the LbArray’s data.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py class">
+<dt id="emma.labeled_array.LbViewer.LbView">
+<em class="property">class </em><code class="sig-name descname">LbView</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">parent</span></em>, <em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="n">criteria</span></em>, <em class="sig-param"><span class="n">_slice</span></em><span class="sig-paren">)</span><a class="headerlink" href="#emma.labeled_array.LbViewer.LbView" title="Permalink to this definition">¶</a></dt>
+<dd><p>A view of a labeled array generated by the LbViewer class.</p>
+<dl class="py method">
+<dt id="emma.labeled_array.LbViewer.LbView.push">
+<code class="sig-name descname">push</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#emma.labeled_array.LbViewer.LbView.push" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="shadowaxis">
+<h2>ShadowAxis<a class="headerlink" href="#shadowaxis" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="emma.labeled_array.Shadow">
+<em class="property">class </em><code class="sig-prename descclassname">emma.labeled_array.</code><code class="sig-name descname">Shadow</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">shadow_array</span></em>, <em class="sig-param"><span class="n">leader_array</span></em>, <em class="sig-param"><span class="n">shadow_axes</span></em><span class="sig-paren">)</span><a class="headerlink" href="#emma.labeled_array.Shadow" title="Permalink to this definition">¶</a></dt>
+<dd><p>A simple class to relate two labeled arrays to facilitate procedural
+mimesis (what happens in one array happens in the related array).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>shadow_array</strong> (<a class="reference internal" href="#emma.labeled_array.LbArray" title="emma.labeled_array.LbArray"><em>LbArray</em></a>) – </p></li>
+<li><p><strong>leader_array</strong> (<a class="reference internal" href="#emma.labeled_array.LbArray" title="emma.labeled_array.LbArray"><em>LbArray</em></a>) – </p></li>
+<li><p><strong>shadow_axes</strong> (<em>[</em><a class="reference internal" href="#emma.labeled_array.LbAxis" title="emma.labeled_array.LbAxis"><em>LbAxis</em></a><em>,</em><em>..</em><em>]</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><code class="xref py py-class docutils literal notranslate"><span class="pre">ShadowAxis</span></code></p>
+</div>
+<dl class="py method">
+<dt id="emma.labeled_array.Shadow.getAxisByIndex">
+<code class="sig-name descname">getAxisByIndex</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">index</span></em><span class="sig-paren">)</span><a class="headerlink" href="#emma.labeled_array.Shadow.getAxisByIndex" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a shadow axis by referencing its index in the shadow_array.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>shadow_axis</strong></p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#emma.labeled_array.LbAxis" title="emma.labeled_array.LbAxis">LbAxis</a> or -1 if no match was found</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="functions">
+<h2>Functions<a class="headerlink" href="#functions" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt id="emma.labeled_array.alignAxes">
+<code class="sig-prename descclassname">emma.labeled_array.</code><code class="sig-name descname">alignAxes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">array</span></em>, <em class="sig-param"><span class="n">ref_array</span></em>, <em class="sig-param"><span class="n">inplace</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#emma.labeled_array.alignAxes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Rearrange the axes of an LbArray so that they match those in another
+LbArray. This function only rerranges the axes as a whole. It does not
+align labels for any axes (see <cite>alignAxisLabels</cite>).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>array</strong> (<a class="reference internal" href="#emma.labeled_array.LbArray" title="emma.labeled_array.LbArray"><em>LbArray</em></a>) – The input array whose axes will be rearranged.</p></li>
+<li><p><strong>ref_array</strong> (<a class="reference internal" href="#emma.labeled_array.LbArray" title="emma.labeled_array.LbArray"><em>LbArray</em></a>) – The reference array that will guide rearrangement of <cite>array</cite>. The
+two arrays must have the same number of dimensions and identical
+axis names (obviously, axis order need not be identical).</p></li>
+<li><p><strong>inplace</strong> (<em>Boolean</em><em>, </em><em>default=False</em>) – If True, <cite>array</cite> is updated with rearranged data and axes. If False,
+a new array with the rearranged values and axes is returned.</p></li>
+<li><p><strong>kwargs</strong> – Keyword arguments can be passed to initialize a new array on disk, e.g.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>a</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#emma.labeled_array.LbArray" title="emma.labeled_array.LbArray">LbArray</a></p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#emma.labeled_array.alignAxisLabels" title="emma.labeled_array.alignAxisLabels"><code class="xref py py-func docutils literal notranslate"><span class="pre">alignAxisLabels()</span></code></a></p>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt id="emma.labeled_array.alignAxisLabels">
+<code class="sig-prename descclassname">emma.labeled_array.</code><code class="sig-name descname">alignAxisLabels</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">array</span></em>, <em class="sig-param"><span class="n">axes</span></em>, <em class="sig-param"><span class="n">ref_axes</span></em>, <em class="sig-param"><span class="n">ref_array</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">inplace</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#emma.labeled_array.alignAxisLabels" title="Permalink to this definition">¶</a></dt>
+<dd><p>Rearrange axis labels and corresponding data indices in an LbArray so
+that they match those in another LbAxis. This function only rerranges
+the axis labels and indicies within the specified axes. It does not
+re-arrange axis positions (see <cite>alignAxes</cite>)</p>
+<p>The axes to align must be of the same length and include identical values
+at all levels (i.e, if labels are a MultiIndex). Index values must be
+unique (across all levels, not within each level).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>array</strong> (<a class="reference internal" href="#emma.labeled_array.LbArray" title="emma.labeled_array.LbArray"><em>LbArray</em></a>) – The labeled array whose data and axes will be rearranged through label
+realignment.</p></li>
+<li><p><strong>axes</strong> (<em>[</em><em>str</em><em> or </em><a class="reference internal" href="#emma.labeled_array.LbAxis" title="emma.labeled_array.LbAxis"><em>LbAxis</em></a><em>,</em><em>..</em><em>]</em>) – Axis name(s) or object(s) for the axes to be realigned.</p></li>
+<li><p><strong>ref_axes</strong> (<em>[</em><em>str</em><em> or </em><a class="reference internal" href="#emma.labeled_array.LbAxis" title="emma.labeled_array.LbAxis"><em>LbAxis</em></a><em>,</em><em>..</em><em>]</em>) – A parallel listing of axis name(s) or object(s) that guide realignment
+of <cite>axes</cite>.</p></li>
+<li><p><strong>ref_array</strong> (<a class="reference internal" href="#emma.labeled_array.LbArray" title="emma.labeled_array.LbArray"><em>LbArray</em></a><em>, </em><em>default=None</em>) – The parent array of the <cite>ref_axes</cite>. This is only requred when axis
+names are provided rather than axis objects.</p></li>
+<li><p><strong>inplace</strong> (<em>Boolean</em><em>, </em><em>default=False</em>) – If True, <cite>array</cite> is updated with rearranged data and axis labels. If
+False, a new LbArray with rearranged data and axis labels is returned.</p></li>
+<li><p><strong>kwargs</strong> – Keyword arguments can be passed to initialize a new array on disk, e.g.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>a</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#emma.labeled_array.LbArray" title="emma.labeled_array.LbArray">LbArray</a></p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#emma.labeled_array.alignAxes" title="emma.labeled_array.alignAxes"><code class="xref py py-func docutils literal notranslate"><span class="pre">alignAxes()</span></code></a></p>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt id="emma.labeled_array.broadcast1dByAxis">
+<code class="sig-prename descclassname">emma.labeled_array.</code><code class="sig-name descname">broadcast1dByAxis</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">labeled_array</span></em>, <em class="sig-param"><span class="n">axis</span></em>, <em class="sig-param"><span class="n">values</span></em>, <em class="sig-param"><span class="n">inplace</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#emma.labeled_array.broadcast1dByAxis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Cast a 1d array into the dimensions of a labeled array along a specified
+axis.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>labeled_array</strong> (<a class="reference internal" href="#emma.labeled_array.LbArray" title="emma.labeled_array.LbArray"><em>LbArray</em></a>) – The labeled array that defines the casting dimensions</p></li>
+<li><p><strong>axis</strong> (<a class="reference internal" href="#emma.labeled_array.LbAxis" title="emma.labeled_array.LbAxis"><em>LbAxis</em></a><em> or </em><em>String</em>) – The axis in <cite>labeled_array</cite> along which to repeat values when
+casting.</p></li>
+<li><p><strong>values</strong> (<em>1d array-like</em>) – The values to cast into the dimensions defined by <cite>labeled_array</cite></p></li>
+<li><p><strong>inplace</strong> (<em>Boolean</em><em>, </em><em>defaul=False</em>) – If True, <cite>labeled_array</cite>’s values are modified in place via the
+casting. Otherwise, a new LbArray is returned with casted values.</p></li>
+<li><p><strong>**kwargs</strong> – Keyword arguments can be used for the initialization of a new
+LbArray when casting (if <a href="#id3"><span class="problematic" id="id4">`</span></a>inplace`=False). This is useful if
+casting into an H5 file, for example.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>a</strong> – An LbArray with values casted into the specified dimensions.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#emma.labeled_array.LbArray" title="emma.labeled_array.LbArray">LbArray</a></p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#emma.labeled_array.LbArray" title="emma.labeled_array.LbArray"><code class="xref py py-func docutils literal notranslate"><span class="pre">LbArray()</span></code></a></p>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt id="emma.labeled_array.dfToLabeledArray">
+<code class="sig-prename descclassname">emma.labeled_array.</code><code class="sig-name descname">dfToLabeledArray</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">df</span></em>, <em class="sig-param"><span class="n">dimension_columns</span></em>, <em class="sig-param"><span class="n">value_column</span></em>, <em class="sig-param"><span class="n">dtype</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">use_index</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">fill_value</span><span class="o">=</span><span class="default_value">nan</span></em>, <em class="sig-param"><span class="n">desc</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">hdf_store</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">node_path</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">atom</span><span class="o">=</span><span class="default_value">Float64Atom(shape=(), dflt=0.0)</span></em>, <em class="sig-param"><span class="n">driver</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">overwrite</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#emma.labeled_array.dfToLabeledArray" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a labeled array from a pandas data frame. The data frame
+is expected to be organized in long form such that there is
+one column of values and <em>n</em> columns representing each
+dimension.</p>
+<p>The input dataframe is sorted based on the provided dimension columns
+to ensure that the resulting array is properly index along each axis.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pandas Data Frame</em>) – </p></li>
+<li><p><strong>dimension_columns</strong> (<em>[</em><em>String</em><em>,</em><em>..</em><em>]</em>) – A (list of) column name(s). The column names are used
+as axis names, while the unique values in each column
+become axis labels.</p></li>
+<li><p><strong>value_columns</strong> (<em>String</em>) – The column that contains the numeric values to be loaded
+into the labeled array.</p></li>
+<li><p><strong>dtype</strong> (<em>np.dtype</em>) – Cast the values in <cite>value_columns</cite> to the specified dtype.</p></li>
+<li><p><strong>fill_value</strong> (<em>numeric</em><em>, </em><em>default=np.nan</em>) – The labeled array to be constructed will be an dense matrix.
+If the data frame does not contain all values, missing data
+will be filled with this value.</p></li>
+<li><p><strong>desc</strong> (<em>String</em><em>, </em><em>default=None</em>) – A description of the contents of the skim.</p></li>
+<li><p><strong>hdf_store</strong> (<em>String</em><em>, </em><em>default=None</em>) – If using an on-disk array to store the array and initialize data, give
+the path to the H5 file.</p></li>
+<li><p><strong>node_path</strong> (<em>String</em><em>, </em><em>default=None</em>) – The node path in the H5 hierarchy within the <cite>hdf_store</cite>.</p></li>
+<li><p><strong>name</strong> (<em>String</em><em>, </em><em>default=None</em>) – The name of the new node to be created.</p></li>
+<li><p><strong>atom</strong> (<em>tb.Atom</em>) – The atom (data type) of the new array.</p></li>
+<li><p><strong>driver</strong> (<em>String</em><em>, </em><em>default=None</em>) – The HDF connection driver.</p></li>
+<li><p><strong>overwrite</strong> (<em>Boolean</em><em>, </em><em>default=False</em>) – If True, the existing node at <em>`node_path`/`name`</em> (if any) will
+be discarded and replaced with the new node.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>lb_array</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#emma.labeled_array.LbArray" title="emma.labeled_array.LbArray">LbArray</a></p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#emma.labeled_array.LbArray" title="emma.labeled_array.LbArray"><code class="xref py py-func docutils literal notranslate"><span class="pre">LbArray()</span></code></a></p>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt id="emma.labeled_array.inheritValues">
+<code class="sig-prename descclassname">emma.labeled_array.</code><code class="sig-name descname">inheritValues</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">coarse_df</span></em>, <em class="sig-param"><span class="n">fine_axis</span></em>, <em class="sig-param"><span class="n">ref_level</span></em>, <em class="sig-param"><span class="n">coarse_level</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#emma.labeled_array.inheritValues" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reindex rows in a data frame from a coarse axis to a fine axis.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>coarse_df</strong> (<a class="reference internal" href="#emma.labeled_array.LbArray" title="emma.labeled_array.LbArray"><em>LbArray</em></a>) – A data frame whose rows represent features at a relatively coarse
+scale.</p></li>
+<li><p><strong>fine_axis</strong> (<a class="reference internal" href="#emma.labeled_array.LbAxis" title="emma.labeled_array.LbAxis"><em>LbAxis</em></a>) – A LbAxis whose labels are a MultiIndex with one index level
+corresponding to index values in <cite>coarse_df</cite> and another level
+identifying related featuresa at a relatively fine scale.</p></li>
+<li><p><strong>ref_level</strong> (<em>String</em>) – The name of the level in <cite>fine_axis</cite> that relates its labels
+to the rows in <cite>coarse_df</cite>.</p></li>
+<li><p><strong>coarse_level</strong> (<em>String</em><em>, </em><em>default=None</em>) – If <cite>coarse_df</cite> uses a multi-level index, provide the name
+of the level that corresponds to values in <cite>ref_level</cite>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="emma.labeled_array.openLbArray_HDF">
+<code class="sig-prename descclassname">emma.labeled_array.</code><code class="sig-name descname">openLbArray_HDF</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">hdf_store</span></em>, <em class="sig-param"><span class="n">node_path</span></em>, <em class="sig-param"><span class="n">mode</span><span class="o">=</span><span class="default_value">'r'</span></em><span class="sig-paren">)</span><a class="headerlink" href="#emma.labeled_array.openLbArray_HDF" title="Permalink to this definition">¶</a></dt>
+<dd><p>Open an LbArray object from a node in an hdf file.</p>
+<p>The hdf file must have the expected attributes for
+reconstructing an LbArray object (these are stored when an
+array references an hdf node as its <cite>data</cite> attribute).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>hdf_store</strong> (<em>String</em>) – The path to the H5 file.</p></li>
+<li><p><strong>node_path</strong> (<em>String</em><em>, </em><em>default=None</em>) – The path to the node in the H5 file.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>a</strong> – An LbArray object built around the on-disk array at the hdf node.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#emma.labeled_array.LbArray" title="emma.labeled_array.LbArray">LbArray</a></p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#emma.labeled_array.LbArray" title="emma.labeled_array.LbArray"><code class="xref py py-func docutils literal notranslate"><span class="pre">LbArray()</span></code></a></p>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt id="emma.labeled_array.reindexDf">
+<code class="sig-prename descclassname">emma.labeled_array.</code><code class="sig-name descname">reindexDf</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">df</span></em>, <em class="sig-param"><span class="n">lbaxis</span></em>, <em class="sig-param"><span class="n">level</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">fill_value</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">copy</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#emma.labeled_array.reindexDf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Filter and sequence rows in a data frame to match values in a given
+labeled axis.</p>
+<dl class="simple">
+<dt>df: DataFrame</dt><dd><p>The data frame to be reindexed</p>
+</dd>
+<dt>lbaxis: LbAxis</dt><dd><p>The referenced axis. The input data frame will be reindexed
+based on the labels in this axis.</p>
+</dd>
+<dt>level: String or Int, default=None</dt><dd><p>If the reference axis is a MultiIndex, a level name may be
+specified on which to reindex the input data frame.</p>
+</dd>
+<dt>fill_value: numeric, default=0</dt><dd><p>Value to use for missing values. Defaults to NaN, but can be
+any compatible value.</p>
+</dd>
+<dt>copy: Boolean, default=True</dt><dd><p>Return a new object, even if the passed indexes are the same.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="emma.labeled_array.sharesByAxis">
+<code class="sig-prename descclassname">emma.labeled_array.</code><code class="sig-name descname">sharesByAxis</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">lbarray</span></em>, <em class="sig-param"><span class="n">by_axes</span><span class="o">=</span><span class="default_value">[]</span></em>, <em class="sig-param"><span class="n">hdf_store</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">node_path</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">overwrite</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#emma.labeled_array.sharesByAxis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Summarize data in a labeled array along specified axes and express
+the summed values as shares.</p>
+<p>If no axis is specified, each cell in the returned array is the original
+value divided by the sum of the full array. When axes are given, values
+are grouped and summed along these axes before shares are generated.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lbarray</strong> (<a class="reference internal" href="#emma.labeled_array.LbArray" title="emma.labeled_array.LbArray"><em>LbArray</em></a>) – The labeled array with original values.</p></li>
+<li><p><strong>by_axes</strong> (<em>[</em><a class="reference internal" href="#emma.labeled_array.LbAxis" title="emma.labeled_array.LbAxis"><em>LbAxis</em></a><em>, </em><em>String</em><em>, or </em><em>Integer...</em><em>]</em><em>, </em><em>default=</em><em>[</em><em>]</em>) – The axis objects, names, or indices of the axes by which shares are
+calculated.</p></li>
+<li><p><strong>hdf_store</strong> (<em>String</em><em>, </em><em>default=None</em>) – If using an on-disk array to store the filled impression, give
+the path to the H5 file.</p></li>
+<li><p><strong>node_path</strong> (<em>String</em><em>, </em><em>default=None</em>) – The node path in the H5 hierarchy within the <cite>hdf_store</cite>.</p></li>
+<li><p><strong>name</strong> (<em>String</em><em>, </em><em>default=None</em>) – The name of the new node to be created. node name
+in the hdf file where data will be stored.</p></li>
+<li><p><strong>overwrite</strong> (<em>Boolean</em><em>, </em><em>default=False</em>) – If casting to an on-disk array at an existing node, the
+node will be replaced with new data if overwrite=True.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>share_array</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#emma.labeled_array.LbArray" title="emma.labeled_array.LbArray">LbArray</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<ul class="simple">
+<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
+<li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
+<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
+</ul>
+</div>
+</div>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="index.html">Table of Contents</a></h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="README.html">Emma</a></li>
+<li class="toctree-l1"><a class="reference internal" href="decay.html">Decay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="io.html">I/O</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ipf.html">IPF</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Labeled Arrays</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#lbaxis">LbAxis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#impression">Impression</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#lbarray">LbArray</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#lbviewer">LbViewer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#shadowaxis">ShadowAxis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#functions">Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="od.html">OD (Origin-Destination)</a></li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="ipf.html"
+                        title="previous chapter">IPF</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="od.html"
+                        title="next chapter">OD (Origin-Destination)</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/labeled_array.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="od.html" title="OD (Origin-Destination)"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="ipf.html" title="IPF"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">EMMA 0.1.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Labeled Arrays</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2020, Renaissance Planning.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.1.1.
+    </div>
+  </body>
+</html>

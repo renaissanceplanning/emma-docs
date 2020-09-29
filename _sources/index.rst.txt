@@ -1,0 +1,24 @@
+EMMA
+====
+Enhanced multimodal accessibility anlaysis for transportation planning and
+travel behavior modeling applications.
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Contents:
+  
+   README
+   decay
+   io
+   ipf
+   labeled_array
+   od
+
+
+
+Indices and tables
+==================
+
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`

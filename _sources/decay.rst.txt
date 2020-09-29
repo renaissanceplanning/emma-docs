@@ -1,0 +1,94 @@
+.. module:: emma.decay
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Contents:
+
+
+
+
+Decay
+===================
+Decay rates express how travel costs influence behavior, discounting
+the value of destinations based on how hard they are to reach (in terms
+of time, monetary costs, etc.). Decay rates are utilized in the calculation
+of accessibility scores and in trip distribution procedures.
+
+This module provides classes and functions for configuring and applying
+decay rates for use in emma modeling.
+
+
+**Classes and Functions**
+- `Decay`: a base class defining the basic parameters of decay rates.
+  Various forms of decay rates, with distinct forms and applications,
+  are defined as child classes:
+  
+  - `LinDecay`: linear
+  
+  - `ExpDecay`: exponential
+  
+  - `LogDecay`: logistic
+
+  - `LogNormalDecay`: lognormal (probability density function)
+
+  - `LogNormalDecay_cdf`: lognormal (cumulative density function)
+
+- `dictToDecay`: constructs a Decay object from a dictionary.
+
+- `decayToJson`: dumps a `Decay` object to a json file for storage
+
+- `jsonToDecay`: creates a `Decay` object from a json file
+
+- `vectorize`: a numpy vectorization wrapper that work with instance
+  methods. Vectorizes `Decay.evalute` as `Decay.vevaluate`. However,
+  purer vectorization can be acheived through `Decay.apply`.
+
+
+Decay
+'''''''''''
+.. autoclass:: Decay
+    :members:
+
+LinDecay
+'''''''''''
+.. autoclass:: LinDecay
+    :members:
+
+ExpDecay
+'''''''''''
+.. autoclass:: ExpDecay
+    :members:
+
+LogDecay
+'''''''''''
+.. autoclass:: LogDecay
+    :members:
+
+LogNormalDecay
+''''''''''''''''
+.. autoclass:: LogNormalDecay
+    :members:
+
+LogNormalDecay_cdf
+'''''''''''''''''''
+.. autoclass:: LogNormalDecay_cdf
+    :members:
+
+Functions
+''''''''''''
+.. autofunction:: dictToDecay
+
+
+.. autofunction:: decayToJson
+
+
+.. autofunction:: jsonToDecay
+
+
+.. autofunction:: vectorize
+
+
+
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`

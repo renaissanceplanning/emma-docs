@@ -1,0 +1,655 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Decay &#8212; EMMA 0.1.0 documentation</title>
+    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="I/O" href="io.html" />
+    <link rel="prev" title="Emma" href="README.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="io.html" title="I/O"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="README.html" title="Emma"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">EMMA 0.1.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Decay</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <span class="target" id="module-emma.decay"></span><div class="toctree-wrapper compound">
+</div>
+<div class="section" id="decay">
+<h1>Decay<a class="headerlink" href="#decay" title="Permalink to this headline">¶</a></h1>
+<p>Decay rates express how travel costs influence behavior, discounting
+the value of destinations based on how hard they are to reach (in terms
+of time, monetary costs, etc.). Decay rates are utilized in the calculation
+of accessibility scores and in trip distribution procedures.</p>
+<p>This module provides classes and functions for configuring and applying
+decay rates for use in emma modeling.</p>
+<p><strong>Classes and Functions</strong>
+- <cite>Decay</cite>: a base class defining the basic parameters of decay rates.</p>
+<blockquote>
+<div><p>Various forms of decay rates, with distinct forms and applications,
+are defined as child classes:</p>
+<ul class="simple">
+<li><p><cite>LinDecay</cite>: linear</p></li>
+<li><p><cite>ExpDecay</cite>: exponential</p></li>
+<li><p><cite>LogDecay</cite>: logistic</p></li>
+<li><p><cite>LogNormalDecay</cite>: lognormal (probability density function)</p></li>
+<li><p><cite>LogNormalDecay_cdf</cite>: lognormal (cumulative density function)</p></li>
+</ul>
+</div></blockquote>
+<ul class="simple">
+<li><p><cite>dictToDecay</cite>: constructs a Decay object from a dictionary.</p></li>
+<li><p><cite>decayToJson</cite>: dumps a <cite>Decay</cite> object to a json file for storage</p></li>
+<li><p><cite>jsonToDecay</cite>: creates a <cite>Decay</cite> object from a json file</p></li>
+<li><p><cite>vectorize</cite>: a numpy vectorization wrapper that work with instance
+methods. Vectorizes <cite>Decay.evalute</cite> as <cite>Decay.vevaluate</cite>. However,
+purer vectorization can be acheived through <cite>Decay.apply</cite>.</p></li>
+</ul>
+<div class="section" id="id1">
+<h2>Decay<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="emma.decay.Decay">
+<em class="property">class </em><code class="sig-prename descclassname">emma.decay.</code><code class="sig-name descname">Decay</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">const</span></em>, <em class="sig-param"><span class="n">coef</span></em>, <em class="sig-param"><span class="n">min_impedance</span><span class="o">=</span><span class="default_value">0.0</span></em>, <em class="sig-param"><span class="n">max_impedance</span><span class="o">=</span><span class="default_value">inf</span></em>, <em class="sig-param"><span class="n">excl_less_than_min</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">excl_greater_than_max</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">lbound</span><span class="o">=</span><span class="default_value">0.0</span></em>, <em class="sig-param"><span class="n">ubound</span><span class="o">=</span><span class="default_value">1.0</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">desc</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#emma.decay.Decay" title="Permalink to this definition">¶</a></dt>
+<dd><p>The Decay class stores common parameters for modeling the degradation
+of the value of an OD connection based on impedance (time, e.g.)
+of traveling between zones.</p>
+<p>The Decay class is an abstract class, and it cannot be instantiated
+directly. It provides basic parameters defining the components of
+a decay calculation, adjustments to impedance values, and bounds
+of the decay expression.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>const</strong> (<em>Float</em>) – The constant term in the decay expression.</p></li>
+<li><p><strong>coef</strong> (<em>Float</em>) – The coefficient term in the decay expression.</p></li>
+<li><p><strong>min_impedance</strong> (<em>Float</em><em>, </em><em>optional</em>) – Default is 0, which implies no minimum value (impedance values less
+than zero are returned as zero, since negative travel impedances are
+impossible).</p></li>
+<li><p><strong>max_impedance</strong> (<em>Float</em><em>, </em><em>optional</em>) – Default is float(‘inf’), which implies no maximum value.</p></li>
+<li><p><strong>excl_less_than_min</strong> (<em>Boolean</em><em>, </em><em>optional</em>) – Default is False (impedance values less than <cite>min_impedance</cite> are
+treated as <cite>min_impedance</cite>). If True, impedance values less than
+<cite>min_impedance</cite> return a decay rate of zero.</p></li>
+<li><p><strong>excl_greater_than_max</strong> (<em>Boolean</em><em>, </em><em>optional</em>) – Default is True (impedance values greater than <cite>max_impedance</cite> are
+return a decay rate of zero). If True, impedance values greater than
+<cite>max_impedance</cite> are treated as <cite>max_impedance</cite>.</p></li>
+<li><p><strong>lbound</strong> (<em>Float</em><em>, </em><em>optional</em>) – Default is 0.0. Defines the lower bound of the decay formula. If the
+result of the decay calculation for a given impedance value is less
+than lbound, lbound is returned. (The negative exponential decay
+formula assymptotically approaches zero as impednace values increase).</p></li>
+<li><p><strong>ubound</strong> (<em>Float</em><em>, </em><em>optional</em>) – Default is 1.0. Defines the upper bound of the decay formula. If the
+result of the decay calculation for a given impedance value is greater
+than ubound, ubound is returned. The ubound parameter is often utilized
+when the <cite>const</cite> term is gretaer than 1.0.</p></li>
+<li><p><strong>name</strong> (<em>String</em>) – A short name to identify the decay rate.</p></li>
+<li><p><strong>desc</strong> (<em>String</em><em>, </em><em>optional</em>) – Default is None. A short description of the decay parameters (“Home-based-
+work auto trips”, e.g.).</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="emma.decay.Decay.evaluate">
+<em class="property">abstract </em><code class="sig-name descname">evaluate</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">impedance</span></em><span class="sig-paren">)</span><a class="headerlink" href="#emma.decay.Decay.evaluate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluates the decay expression for a given impedance value.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>impedance</strong> (<em>Numeric</em>) – A non-negative impedance (negative impedances evaluate
+to NaN).</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>decay_factor</strong> – The result of the Decay formula applied to <cite>impedance</cite>,
+honoring parameters governing input and output limits.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="emma.decay.Decay.plot">
+<code class="sig-name descname">plot</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">impedances</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#emma.decay.Decay.plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a plot showing decay factors assiciated with a series of
+impedance values.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>impedances</strong> (<em>array-like</em>) – A series of values for which to estimate decay factors.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="emma.decay.Decay.toDict">
+<code class="sig-name descname">toDict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">dec_type</span></em><span class="sig-paren">)</span><a class="headerlink" href="#emma.decay.Decay.toDict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dump a decay rate to a dictionary.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="emma.decay.Decay.vevaluate">
+<code class="sig-name descname">vevaluate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#emma.decay.Decay.vevaluate" title="Permalink to this definition">¶</a></dt>
+<dd><p>A vectorized implementation of the <cite>evaluate</cite> method of
+a Decay object (applies <cite>evaluate</cite> to a vector of
+impedances). Note that vectorized functions are a
+convenience provided by numpy that are basically just
+<cite>for</cite> loops and may not be performant.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="lindecay">
+<h2>LinDecay<a class="headerlink" href="#lindecay" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="emma.decay.LinDecay">
+<em class="property">class </em><code class="sig-prename descclassname">emma.decay.</code><code class="sig-name descname">LinDecay</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">const</span></em>, <em class="sig-param"><span class="n">coef</span></em>, <em class="sig-param"><span class="n">min_impedance</span><span class="o">=</span><span class="default_value">0.0</span></em>, <em class="sig-param"><span class="n">max_impedance</span><span class="o">=</span><span class="default_value">inf</span></em>, <em class="sig-param"><span class="n">excl_less_than_min</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">excl_greater_than_max</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">lbound</span><span class="o">=</span><span class="default_value">0.0</span></em>, <em class="sig-param"><span class="n">ubound</span><span class="o">=</span><span class="default_value">1.0</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">desc</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#emma.decay.LinDecay" title="Permalink to this definition">¶</a></dt>
+<dd><p>The LinDecay class assumes a simple linear formula that defines
+a line for discounting the value of a connection based on cumulative
+impedance. The linear decay formula is shown below:</p>
+<div class="math notranslate nohighlight">
+\[self.const + (self.coef * impedance))\]</div>
+<dl class="py method">
+<dt id="emma.decay.LinDecay.apply">
+<code class="sig-name descname">apply</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">impedance</span></em>, <em class="sig-param"><span class="n">inplace</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">neg_value</span><span class="o">=</span><span class="default_value">nan</span></em><span class="sig-paren">)</span><a class="headerlink" href="#emma.decay.LinDecay.apply" title="Permalink to this definition">¶</a></dt>
+<dd><p>A true vectorized procedure that calculates decay factors
+to an input vector of impedances. While this is faster than
+<cite>vevaluate</cite>, it may also consume more memory.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>impedance</strong> (<em>Numeric</em>) – A vector of non-negative impedance (negative impedances evaluate
+to NaN).</p></li>
+<li><p><strong>inplace</strong> (<em>Boolean</em>) – If True, the <cite>impedance</cite> vector will be modified.
+If False, the <cite>impedance</cite> vector is retained and a new decay
+vector is returned.</p></li>
+<li><p><strong>neg_value</strong> (<em>np.float</em><em>, </em><em>default=np.nan</em>) – Negative values in <cite>impedance</cite> are invalid. They will be
+represented in the returned array by the assigned <cite>neg_value</cite>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>decay_factors</strong> – The result of the Decay formula applied to <cite>impedance</cite>,
+honoring parameters governing input and output limits.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="emma.decay.LinDecay.evaluate">
+<code class="sig-name descname">evaluate</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">impedance</span></em><span class="sig-paren">)</span><a class="headerlink" href="#emma.decay.LinDecay.evaluate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluates the decay expression for a given impedance value.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>impedance</strong> (<em>Numeric</em>) – A non-negative impedance (negative impedances evaluate
+to NaN).</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>decay_factor</strong> – The result of the Decay formula applied to <cite>impedance</cite>,
+honoring parameters governing input and output limits.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="emma.decay.LinDecay.toDict">
+<code class="sig-name descname">toDict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#emma.decay.LinDecay.toDict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dump a decay rate to a dictionary.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="expdecay">
+<h2>ExpDecay<a class="headerlink" href="#expdecay" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="emma.decay.ExpDecay">
+<em class="property">class </em><code class="sig-prename descclassname">emma.decay.</code><code class="sig-name descname">ExpDecay</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">const</span></em>, <em class="sig-param"><span class="n">coef</span></em>, <em class="sig-param"><span class="n">min_impedance</span><span class="o">=</span><span class="default_value">0.0</span></em>, <em class="sig-param"><span class="n">max_impedance</span><span class="o">=</span><span class="default_value">inf</span></em>, <em class="sig-param"><span class="n">excl_less_than_min</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">excl_greater_than_max</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">lbound</span><span class="o">=</span><span class="default_value">0.0</span></em>, <em class="sig-param"><span class="n">ubound</span><span class="o">=</span><span class="default_value">1.0</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">desc</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#emma.decay.ExpDecay" title="Permalink to this definition">¶</a></dt>
+<dd><p>The ExpDecay class assumes a (negative) exponental formula that defines
+a curve for discounting the value of a connection based on cumulative
+impedance.  The exponential decay formula is shown below:</p>
+<div class="math notranslate nohighlight">
+\[self.const * (e^{self.coef * impedance})\]</div>
+<dl class="py method">
+<dt id="emma.decay.ExpDecay.apply">
+<code class="sig-name descname">apply</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">impedance</span></em>, <em class="sig-param"><span class="n">inplace</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">neg_value</span><span class="o">=</span><span class="default_value">nan</span></em><span class="sig-paren">)</span><a class="headerlink" href="#emma.decay.ExpDecay.apply" title="Permalink to this definition">¶</a></dt>
+<dd><p>A true vectorized procedure that calculates decay factors
+to an input vector of impedances. While this is faster than
+<cite>vevaluate</cite>, it may also consume more memory.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>impedance</strong> (<em>Numeric</em>) – A vector of non-negative impedance (negative impedances evaluate
+to NaN).</p></li>
+<li><p><strong>inplace</strong> (<em>Boolean</em>) – If True, the <cite>impedance</cite> vector will be modified.
+If False, the <cite>impedance</cite> vector is retained and a new decay
+vector is returned.</p></li>
+<li><p><strong>neg_value</strong> (<em>np.float</em><em>, </em><em>default=np.nan</em>) – Negative values in <cite>impedance</cite> are invalid. They will be
+represented in the returned array by the assigned <cite>neg_value</cite>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>decay_factors</strong> – The result of the Decay formula applied to <cite>impedance</cite>,
+honoring parameters governing input and output limits.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="emma.decay.ExpDecay.evaluate">
+<code class="sig-name descname">evaluate</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">impedance</span></em><span class="sig-paren">)</span><a class="headerlink" href="#emma.decay.ExpDecay.evaluate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluates the decay expression for a given impedance value.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>impedance</strong> (<em>Numeric</em>) – A non-negative impedance (negative impedances evaluate
+to NaN).</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>decay_factor</strong> – The result of the Decay formula applied to <cite>impedance</cite>,
+honoring parameters governing input and output limits.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="emma.decay.ExpDecay.toDict">
+<code class="sig-name descname">toDict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#emma.decay.ExpDecay.toDict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dump a decay rate to a dictionary.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="logdecay">
+<h2>LogDecay<a class="headerlink" href="#logdecay" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="emma.decay.LogDecay">
+<em class="property">class </em><code class="sig-prename descclassname">emma.decay.</code><code class="sig-name descname">LogDecay</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">const</span></em>, <em class="sig-param"><span class="n">coef</span></em>, <em class="sig-param"><span class="n">min_impedance</span><span class="o">=</span><span class="default_value">0.0</span></em>, <em class="sig-param"><span class="n">max_impedance</span><span class="o">=</span><span class="default_value">inf</span></em>, <em class="sig-param"><span class="n">excl_less_than_min</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">excl_greater_than_max</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">lbound</span><span class="o">=</span><span class="default_value">0.0</span></em>, <em class="sig-param"><span class="n">ubound</span><span class="o">=</span><span class="default_value">1.0</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">desc</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#emma.decay.LogDecay" title="Permalink to this definition">¶</a></dt>
+<dd><p>The LogDecay class assumes a logistic formula that defines
+a curve for discounting the value of a connection based on cumulative
+impedance. The logistic decay formula is shown below:</p>
+<div class="math notranslate nohighlight">
+\[\dfrac{1}{1 + e^{-(self.const + self.coef  \cdot  impedance)}}\]</div>
+<dl class="py method">
+<dt id="emma.decay.LogDecay.apply">
+<code class="sig-name descname">apply</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">impedance</span></em>, <em class="sig-param"><span class="n">inplace</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">neg_value</span><span class="o">=</span><span class="default_value">nan</span></em><span class="sig-paren">)</span><a class="headerlink" href="#emma.decay.LogDecay.apply" title="Permalink to this definition">¶</a></dt>
+<dd><p>A true vectorized procedure that calculates decay factors
+to an input vector of impedances. While this is faster than
+<cite>vevaluate</cite>, it may also consume more memory.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>impedance</strong> (<em>Numeric</em>) – A vector of non-negative impedance (negative impedances evaluate
+to NaN).</p></li>
+<li><p><strong>inplace</strong> (<em>Boolean</em>) – If True, the <cite>impedance</cite> vector will be modified.
+If False, the <cite>impedance</cite> vector is retained and a new decay
+vector is returned.</p></li>
+<li><p><strong>neg_value</strong> (<em>np.float</em><em>, </em><em>default=np.nan</em>) – Negative values in <cite>impedance</cite> are invalid. They will be
+represented in the returned array by the assigned <cite>neg_value</cite>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>decay_factors</strong> – The result of the Decay formula applied to <cite>impedance</cite>,
+honoring parameters governing input and output limits.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="emma.decay.LogDecay.evaluate">
+<code class="sig-name descname">evaluate</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">impedance</span></em><span class="sig-paren">)</span><a class="headerlink" href="#emma.decay.LogDecay.evaluate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluates the decay expression for a given impedance value.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>impedance</strong> (<em>Numeric</em>) – A non-negative impedance (negative impedances evaluate
+to NaN).</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>decay_factor</strong> – The result of the Decay formula applied to <cite>impedance</cite>,
+honoring parameters governing input and output limits.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="emma.decay.LogDecay.toDict">
+<code class="sig-name descname">toDict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#emma.decay.LogDecay.toDict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dump a decay rate to a dictionary.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="lognormaldecay">
+<h2>LogNormalDecay<a class="headerlink" href="#lognormaldecay" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="emma.decay.LogNormalDecay">
+<em class="property">class </em><code class="sig-prename descclassname">emma.decay.</code><code class="sig-name descname">LogNormalDecay</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">meanlog</span></em>, <em class="sig-param"><span class="n">sdlog</span></em>, <em class="sig-param"><span class="n">min_impedance</span><span class="o">=</span><span class="default_value">0.0</span></em>, <em class="sig-param"><span class="n">max_impedance</span><span class="o">=</span><span class="default_value">inf</span></em>, <em class="sig-param"><span class="n">excl_less_than_min</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">excl_greater_than_max</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">lbound</span><span class="o">=</span><span class="default_value">0.0</span></em>, <em class="sig-param"><span class="n">ubound</span><span class="o">=</span><span class="default_value">1.0</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">desc</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#emma.decay.LogNormalDecay" title="Permalink to this definition">¶</a></dt>
+<dd><p>The LogNormalDecay class assumes a lognormal distribution  that defines
+a curve for discounting the value of a connection based on estimated
+impedance. This is a non-cumulative decay function.</p>
+<div class="math notranslate nohighlight">
+\[\left(\frac{1}{impedance \cdot self.sdlog \cdot \sqrt{2 \pi}}\right) \cdot \left(e^{-\frac{(\ln (impedance) - self.meanlog)^2}{2 \cdot self.sdlog^2}}\right)\]</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>meanlog</strong> (<em>numeric</em>) – </p></li>
+<li><p><strong>sdlog</strong> (<em>numeric</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="emma.decay.LogNormalDecay.apply">
+<code class="sig-name descname">apply</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">impedance</span></em>, <em class="sig-param"><span class="n">inplace</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">neg_value</span><span class="o">=</span><span class="default_value">nan</span></em><span class="sig-paren">)</span><a class="headerlink" href="#emma.decay.LogNormalDecay.apply" title="Permalink to this definition">¶</a></dt>
+<dd><p>A true vectorized procedure that calculates decay factors
+to an input vector of impedances. While this is faster than
+<cite>vevaluate</cite>, it may also consume more memory.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>impedance</strong> (<em>Numeric</em>) – A vector of non-negative impedance (negative impedances evaluate
+to NaN).</p></li>
+<li><p><strong>inplace</strong> (<em>Boolean</em>) – If True, the <cite>impedance</cite> vector will be modified.
+If False, the <cite>impedance</cite> vector is retained and a new decay
+vector is returned.</p></li>
+<li><p><strong>neg_value</strong> (<em>np.float</em><em>, </em><em>default=np.nan</em>) – Negative values in <cite>impedance</cite> are invalid. They will be
+represented in the returned array by the assigned <cite>neg_value</cite>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>decay_factors</strong> – The result of the Decay formula applied to <cite>impedance</cite>,
+honoring parameters governing input and output limits.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="emma.decay.LogNormalDecay.evaluate">
+<code class="sig-name descname">evaluate</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">impedance</span></em><span class="sig-paren">)</span><a class="headerlink" href="#emma.decay.LogNormalDecay.evaluate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluates the decay expression for a given impedance value.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>impedance</strong> (<em>Numeric</em>) – A non-negative impedance (negative impedances evaluate
+to NaN).</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>decay_factor</strong> – The result of the Decay formula applied to <cite>impedance</cite>,
+honoring parameters governing input and output limits.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Float</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="lognormaldecay-cdf">
+<h2>LogNormalDecay_cdf<a class="headerlink" href="#lognormaldecay-cdf" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="emma.decay.LogNormalDecay_cdf">
+<em class="property">class </em><code class="sig-prename descclassname">emma.decay.</code><code class="sig-name descname">LogNormalDecay_cdf</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">meanlog</span></em>, <em class="sig-param"><span class="n">sdlog</span></em>, <em class="sig-param"><span class="n">min_impedance</span><span class="o">=</span><span class="default_value">0.0</span></em>, <em class="sig-param"><span class="n">max_impedance</span><span class="o">=</span><span class="default_value">inf</span></em>, <em class="sig-param"><span class="n">excl_less_than_min</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">excl_greater_than_max</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">lbound</span><span class="o">=</span><span class="default_value">0.0</span></em>, <em class="sig-param"><span class="n">ubound</span><span class="o">=</span><span class="default_value">1.0</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">desc</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#emma.decay.LogNormalDecay_cdf" title="Permalink to this definition">¶</a></dt>
+<dd><p>The LogNormalDecay_cdf class assumes a lognormal distribution that defines
+a curve for discounting the value of a connection based on estimated
+impedance. This is a cumulative decay function (the cumulative form of the
+LogNormalDecay pdf curve).</p>
+<div class="math notranslate nohighlight">
+\[\frac{1}{2} + \frac{1}{2} * erf\left[\frac{\ln impedance - self.meanlog}{\sqrt{2} \cdot self.sdlog}\right]\]</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>meanlog</strong> (<em>numeric</em>) – </p></li>
+<li><p><strong>sdlog</strong> (<em>numeric</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="emma.decay.LogNormalDecay_cdf.apply">
+<code class="sig-name descname">apply</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">impedance</span></em>, <em class="sig-param"><span class="n">inplace</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">neg_value</span><span class="o">=</span><span class="default_value">nan</span></em><span class="sig-paren">)</span><a class="headerlink" href="#emma.decay.LogNormalDecay_cdf.apply" title="Permalink to this definition">¶</a></dt>
+<dd><p>A true vectorized procedure that calculates decay factors
+to an input vector of impedances. While this is faster than
+<cite>vevaluate</cite>, it may also consume more memory.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>impedance</strong> (<em>Numeric</em>) – A vector of non-negative impedance (negative impedances evaluate
+to NaN).</p></li>
+<li><p><strong>inplace</strong> (<em>Boolean</em>) – If True, the <cite>impedance</cite> vector will be modified.
+If False, the <cite>impedance</cite> vector is retained and a new decay
+vector is returned.</p></li>
+<li><p><strong>neg_value</strong> (<em>np.float</em><em>, </em><em>default=np.nan</em>) – Negative values in <cite>impedance</cite> are invalid. They will be
+represented in the returned array by the assigned <cite>neg_value</cite>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>decay_factors</strong> – The result of the Decay formula applied to <cite>impedance</cite>,
+honoring parameters governing input and output limits.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="emma.decay.LogNormalDecay_cdf.evaluate">
+<code class="sig-name descname">evaluate</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">impedance</span></em><span class="sig-paren">)</span><a class="headerlink" href="#emma.decay.LogNormalDecay_cdf.evaluate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluates the decay expression for a given impedance value.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>impedance</strong> (<em>Numeric</em>) – A non-negative impedance (negative impedances evaluate
+to NaN).</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>decay_factor</strong> – The result of the Decay formula applied to <cite>impedance</cite>,
+honoring parameters governing input and output limits.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Float</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="functions">
+<h2>Functions<a class="headerlink" href="#functions" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt id="emma.decay.dictToDecay">
+<code class="sig-prename descclassname">emma.decay.</code><code class="sig-name descname">dictToDecay</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">decay_dict</span></em><span class="sig-paren">)</span><a class="headerlink" href="#emma.decay.dictToDecay" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct a decay rate from a dictionary.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="emma.decay.decayToJson">
+<code class="sig-prename descclassname">emma.decay.</code><code class="sig-name descname">decayToJson</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">decay_obj</span></em>, <em class="sig-param"><span class="n">output_file</span></em><span class="sig-paren">)</span><a class="headerlink" href="#emma.decay.decayToJson" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stores a Decay object in a JSON config file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>decay_obj</strong> (<a class="reference internal" href="#emma.decay.Decay" title="emma.decay.Decay"><em>Decay</em></a>) – A Decay object defining decay parameters.</p></li>
+<li><p><strong>output_file</strong> (<em>string</em>) – The path to the output file. If just the file name is
+passed, the file will be saved in the current working directory.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Writes a decay config JSON file to the output file location.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#emma.decay.jsonToDecay" title="emma.decay.jsonToDecay"><code class="xref py py-func docutils literal notranslate"><span class="pre">jsonToDecay()</span></code></a>, <a class="reference internal" href="#emma.decay.Decay" title="emma.decay.Decay"><code class="xref py py-func docutils literal notranslate"><span class="pre">Decay()</span></code></a></p>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt id="emma.decay.jsonToDecay">
+<code class="sig-prename descclassname">emma.decay.</code><code class="sig-name descname">jsonToDecay</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">in_file</span></em><span class="sig-paren">)</span><a class="headerlink" href="#emma.decay.jsonToDecay" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a Decay object from a JSON config file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>in_file</strong> (<em>string</em>) – The file name in the current working directory or full path to
+the JSON config file from which to generate the Decay object.</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>KeyError</strong> – If ‘in_file’ is not a valid Decay config file (i.e., does not
+    contain keys associated with Decay attributes).</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p></p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#emma.decay.Decay" title="emma.decay.Decay">Decay</a></p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#emma.decay.decayToJson" title="emma.decay.decayToJson"><code class="xref py py-func docutils literal notranslate"><span class="pre">decayToJson()</span></code></a>, <a class="reference internal" href="#emma.decay.Decay" title="emma.decay.Decay"><code class="xref py py-func docutils literal notranslate"><span class="pre">Decay()</span></code></a></p>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt id="emma.decay.vectorize">
+<code class="sig-prename descclassname">emma.decay.</code><code class="sig-name descname">vectorize</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">otypes</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">signature</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#emma.decay.vectorize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Numpy vectorization wrapper that works with instance methods.</p>
+</dd></dl>
+
+<ul class="simple">
+<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
+<li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
+<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
+</ul>
+</div>
+</div>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="index.html">Table of Contents</a></h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="README.html">Emma</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Decay</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id1">Decay</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#lindecay">LinDecay</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#expdecay">ExpDecay</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#logdecay">LogDecay</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#lognormaldecay">LogNormalDecay</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#lognormaldecay-cdf">LogNormalDecay_cdf</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#functions">Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="io.html">I/O</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ipf.html">IPF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="labeled_array.html">Labeled Arrays</a></li>
+<li class="toctree-l1"><a class="reference internal" href="od.html">OD (Origin-Destination)</a></li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="README.html"
+                        title="previous chapter">Emma</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="io.html"
+                        title="next chapter">I/O</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/decay.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="io.html" title="I/O"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="README.html" title="Emma"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">EMMA 0.1.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Decay</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2020, Renaissance Planning.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.1.1.
+    </div>
+  </body>
+</html>

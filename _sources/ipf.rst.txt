@@ -1,0 +1,60 @@
+.. module:: emma.ipf
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Contents:
+
+
+IPF
+==================
+
+The IPF module provides classes and functions to run iterative
+proportional fitting (IPF) procedures. IPF is used to refactor
+n-dimensional arrays iteratively in order to obtain marginal
+sums that align with provided marginal targets. When the marginal
+values closely resemble the marginal targets (within a convergence
+tolerance), the resulting ndarray object is returned. If the IPF
+process reaches the maximum number of iterations or successive
+iterations fail to meaningfully close the convergence gap,
+the IPF process exits, returning the ndarray as of the latest
+iteration. Convergence is determined based on the 
+root-mean-squared-error between the marginals and the targets.
+
+**Classes and Functions**
+- `IPF`: a function to setup and apply the IPF procedures for a
+  n-dimensional labeled array.
+
+- `IPF_problem_np`: a class to store marginal target information
+  and apply the IPF process to balance values in a labeled array.
+
+- `IPF_problem_series`: a child class of `IPF_problem_np` that
+  facilitates application of the IPF process in series (iterating
+  over rows in a pandas DataFrame).
+
+- `buildSeedMatrix`: a legacy function to construct a naive seed
+  matrix as a numpy array. The seed then needs to be converted to 
+  labeled array for use in IPF functions and classes.
+
+IPF_problem_np
+---------------------------------------
+.. autoclass:: IPF_problem_np
+    :members:
+
+
+IPF_problem_series
+---------------------------------------
+.. autoclass:: IPF_problem_series
+    :members:
+
+
+Functions
+-----------
+.. autofunction:: IPF
+
+
+.. autofunction:: buildSeedMatrix
+
+
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`

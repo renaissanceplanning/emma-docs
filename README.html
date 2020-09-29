@@ -1,0 +1,158 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emma &#8212; EMMA 0.1.0 documentation</title>
+    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Decay" href="decay.html" />
+    <link rel="prev" title="EMMA" href="index.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="decay.html" title="Decay"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="EMMA"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">EMMA 0.1.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Emma</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="emma">
+<h1>Emma<a class="headerlink" href="#emma" title="Permalink to this headline">¶</a></h1>
+<p>Emma is a python-based toolkit to facilitate analysis of multimodal
+accessibility for transportation planning and travel modeling applications.</p>
+<div class="section" id="environment-setup">
+<h2>Environment setup<a class="headerlink" href="#environment-setup" title="Permalink to this headline">¶</a></h2>
+<p>To use emma, start by configuring a development environment using Anaconda.
+Open the terminal or Anaconda Prompt and enter:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">env</span> <span class="n">create</span> <span class="n">renaissanceplanning</span><span class="o">/</span><span class="n">emma</span>
+</pre></div>
+</div>
+<p>When conda finishes the installation, activate it as follows:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">activate</span> <span class="n">emma</span>
+</pre></div>
+</div>
+<p>Additional packages may be installed in the emma environment as needed.
+For example, Spyder or Jupyter may be desired for interactive programming
+or notebook development using emma.</p>
+</div>
+<div class="section" id="package-installation">
+<h2>Package installation<a class="headerlink" href="#package-installation" title="Permalink to this headline">¶</a></h2>
+<p>Clone this repository locally using git. In GitBash, for example, navigate
+to an appropriate local folder where the repo will be cloned. Then type:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">clone</span> <span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">renaissanceplanning</span><span class="o">/</span><span class="n">emma</span>
+</pre></div>
+</div>
+<p>This will save the emma package scripts locally. To make the package visible
+in python (such that <cite>import emma</cite> works in any working directory), open conda
+prompt in the emma/scripts folder.  With the <cite>emma</cite> environment active in
+conda, type:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">setup</span><span class="o">.</span><span class="n">py</span> <span class="n">install</span>
+</pre></div>
+</div>
+<p>This is a very basic installation script, and more robust methods of
+installing/updating emma may emerge over time.</p>
+</div>
+</div>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="index.html">Table of Contents</a></h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Emma</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#environment-setup">Environment setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#package-installation">Package installation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="decay.html">Decay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="io.html">I/O</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ipf.html">IPF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="labeled_array.html">Labeled Arrays</a></li>
+<li class="toctree-l1"><a class="reference internal" href="od.html">OD (Origin-Destination)</a></li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">EMMA</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="decay.html"
+                        title="next chapter">Decay</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/README.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="decay.html" title="Decay"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="EMMA"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">EMMA 0.1.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Emma</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2020, Renaissance Planning.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.1.1.
+    </div>
+  </body>
+</html>

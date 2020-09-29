@@ -1,0 +1,97 @@
+.. module:: emma.od
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Contents:
+
+
+OD (Origin-Destination)
+============================
+
+Origin-Destination data are essential to many travel analyses.
+Emma relies heavily on OD data to analyze accessibility, trip distribution,
+system productivity, etc.
+
+This module provides classes and functions that facilitate the creation,
+storage, and retrieval of OD matrices as well as methods for developing
+and executing functions using multiple matrices. Matrix data may be stored
+in the h5 file format, for efficient on-disk processing.
+
+Module objectives:
+- efficient I/O between tabular OD data and matrices.
+- efficient replication of matrix structures and/or values for OD processing.
+- consistent processing idioms for vectorized formula applications.
+
+**Classes and functions**
+- `Skim`: stores OD data as a specialized labeled array. Skims always have
+  congruent *i* (origins) and *j* (destinations) dimensions. Skim is a child
+  class of `LbArray`, inheriting (or in a few cases overloading) its attributes
+  and methods while adding a handful of distinct attributes and methods to
+  ensure preservation of the *i* and *j* dimensions.
+
+- The `loadOD_...` family of functions supports reading origin-destination
+  data from a long table into a Skim object. The skim object must be 
+  already initialized. Supported formats include: csv (most performant), 
+  ESRI geodatabase, DBF, or Excel.
+
+- `maxInteractions`/`weightedInteractions` are functions that consume origin-
+  end and desetination-end activity data in a pandas DataFrame to generate
+  a Skim reflecting trip-making potential among OD pairs.
+
+- `summarizeAccess` uses origin-end OR destination-end activty data in a
+  pandas DataFrame and one or more Decay objects (see the `decay` module)
+  to generate access scores to/from each zone.
+
+- `distribute` provides a simple function for balancing a trip table based
+  on zone-levl productions and attractions. Currently the function only works
+  for a simple 2d matrix.
+
+- `openSkim_HDF` loads a skim object from an on-disk array (H5 file). Skims
+  constructed with H5 file specs are intialized on-disk and parameters for
+  reloading the Skim object from the H5 file are stored as attributes.
+
+- `csrVApply` is an early foray into supporting sparse matrix applications,
+  but it remains untested.
+
+Skim
+-------------
+.. autoclass:: Skim
+    :members:
+
+
+Functions
+-------------
+.. autofunction:: csrVApply
+
+
+.. autofunction:: distribute
+
+
+.. autofunction:: loadOD_csv
+
+
+.. autofunction:: loadOD_dbf
+
+
+.. autofunction:: loadOD_gdb
+
+
+.. autofunction:: loadOD_excel
+
+
+.. autofunction:: maxInteractions
+
+
+.. autofunction:: openSkim_HDF
+
+
+.. autofunction:: summarizeAccess
+
+
+.. autofunction:: weightedInteractions
+
+
+
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`

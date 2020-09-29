@@ -1,0 +1,59 @@
+.. module:: emma.io
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Contents:
+
+
+I/O
+==================
+
+Travel analyses often use information about thousands of zones and record
+information for all possible origin-destination pairs, generating large
+matrices. It is often impossible to allocate enough memory to store these
+large datasets or perform analytical tasks with them. Moreover, while 
+in-memory operations are performant, many matrices' data must persist across
+numerous processes. Emma uses the H5 file format and pytables to store arrays
+on-disk and efficiently consume and manipulate these data for travel analysis.
+The io module provides classes and functions to make these operations as
+seamless as possible.
+
+**Classes and Functions**
+- `H5Array`: A class that manages connections to an H5 file. Users do not
+  need to implement this class directly. Rather, the `LbArray` and `Skim`
+  classes use it when their `data` attributes refer to on-disk arrays in
+  H5 files.
+
+- `initH5Array`: A function that initializes an on-disk array. Users do
+  no need to call this function directly. Rather, the `LbArray` and `Skim`
+  classes use it to intialize on-disk arrays in H5 files as need when
+  setting their `data` attributes.
+
+- `listH5Nodes`: A convenient function for viewing the contents of an
+  H5 file.
+
+- `sparseToHDF`/`loadSparse_HDF`: basic functions to support the storage
+  and loading of sparse matrices in H5 files.
+
+H5Array
+---------
+.. autoclass:: H5Array
+    :members:
+
+
+Functions
+----------
+.. autofunction:: listH5Nodes
+
+
+.. autofunction:: sparseToHDF
+
+
+.. autofunction:: loadSparse_HDF
+
+
+
+
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`

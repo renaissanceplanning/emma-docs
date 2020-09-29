@@ -1,0 +1,263 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>I/O &#8212; EMMA 0.1.0 documentation</title>
+    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="IPF" href="ipf.html" />
+    <link rel="prev" title="Decay" href="decay.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ipf.html" title="IPF"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="decay.html" title="Decay"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">EMMA 0.1.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">I/O</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <span class="target" id="module-emma.io"></span><div class="toctree-wrapper compound">
+</div>
+<div class="section" id="i-o">
+<h1>I/O<a class="headerlink" href="#i-o" title="Permalink to this headline">¶</a></h1>
+<p>Travel analyses often use information about thousands of zones and record
+information for all possible origin-destination pairs, generating large
+matrices. It is often impossible to allocate enough memory to store these
+large datasets or perform analytical tasks with them. Moreover, while
+in-memory operations are performant, many matrices’ data must persist across
+numerous processes. Emma uses the H5 file format and pytables to store arrays
+on-disk and efficiently consume and manipulate these data for travel analysis.
+The io module provides classes and functions to make these operations as
+seamless as possible.</p>
+<p><strong>Classes and Functions</strong>
+- <cite>H5Array</cite>: A class that manages connections to an H5 file. Users do not</p>
+<blockquote>
+<div><p>need to implement this class directly. Rather, the <cite>LbArray</cite> and <cite>Skim</cite>
+classes use it when their <cite>data</cite> attributes refer to on-disk arrays in
+H5 files.</p>
+</div></blockquote>
+<ul class="simple">
+<li><p><cite>initH5Array</cite>: A function that initializes an on-disk array. Users do
+no need to call this function directly. Rather, the <cite>LbArray</cite> and <cite>Skim</cite>
+classes use it to intialize on-disk arrays in H5 files as need when
+setting their <cite>data</cite> attributes.</p></li>
+<li><p><cite>listH5Nodes</cite>: A convenient function for viewing the contents of an
+H5 file.</p></li>
+<li><p><cite>sparseToHDF</cite>/<cite>loadSparse_HDF</cite>: basic functions to support the storage
+and loading of sparse matrices in H5 files.</p></li>
+</ul>
+<div class="section" id="h5array">
+<h2>H5Array<a class="headerlink" href="#h5array" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="emma.io.H5Array">
+<em class="property">class </em><code class="sig-prename descclassname">emma.io.</code><code class="sig-name descname">H5Array</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">hdf_store</span></em>, <em class="sig-param"><span class="n">node_path</span></em>, <em class="sig-param"><span class="n">driver</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#emma.io.H5Array" title="Permalink to this definition">¶</a></dt>
+<dd><p>A lightweight class facilitating access to a pytables on-disk array.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>hdf_store</strong> (<em>String</em>) – The path to the H5 file.</p></li>
+<li><p><strong>node_path</strong> (<em>String</em>) – The path to the array node in the H5 file.</p></li>
+<li><p><strong>driver</strong> (<em>String</em><em>, </em><em>default=None</em>) – The HDF connection driver.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="emma.io.H5Array.open">
+<code class="sig-name descname">open</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">mode</span><span class="o">=</span><span class="default_value">'a'</span></em><span class="sig-paren">)</span><a class="headerlink" href="#emma.io.H5Array.open" title="Permalink to this definition">¶</a></dt>
+<dd><p>Connect to data at this HDF node. Can be used as a <cite>with</cite> block.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>mode to open the file. It can be one of the following</strong> (<em>The</em>) – <p>-‘r’: Read-only; no data can be modified.</p>
+<p>-‘w’: Write; a new file is created (an existing file with
+the same name would be deleted).</p>
+<p>-‘a’: Append; an existing file is opened for reading and
+writing, and if the file does not exist it is created.</p>
+<p>-‘r+’: It is similar to ‘a’, but the file must already exist.</p>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="functions">
+<h2>Functions<a class="headerlink" href="#functions" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt id="emma.io.listH5Nodes">
+<code class="sig-prename descclassname">emma.io.</code><code class="sig-name descname">listH5Nodes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">hdf_file</span></em>, <em class="sig-param"><span class="n">at_node</span><span class="o">=</span><span class="default_value">'/'</span></em>, <em class="sig-param"><span class="n">recursive</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">pretty</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#emma.io.listH5Nodes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a dictionary of nodes in an H5 file, within a specified
+node (default is the root). Recursive option allows all subnodes
+to be listed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>hdf_file</strong> (<em>String</em>) – The path to the h5 file.</p></li>
+<li><p><strong>at_node</strong> (<em>String</em><em>, </em><em>default=&quot;/&quot;</em>) – The node within <cite>hdf_file</cite> whose child nodes will be listed.</p></li>
+<li><p><strong>recursive</strong> (<em>Boolean</em><em>, </em><em>default=False</em>) – If True, all descendant nodes from <cite>at_node</cite> are listed in a
+nested dictionary. Otherwise, onlt <cite>at_node</cite>’s immediate children
+are returned.</p></li>
+<li><p><strong>pretty</strong> (<em>Boolean</em><em>, </em><em>default=False</em>) – If True, the returned dictionary is dumped to a yaml string. Pass
+this to Python’s <cite>print</cite> function for a highly-legible view of the
+H5 hierarchy. if False, a dicitonary of nodes is returnd.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>nodes</strong> – The nodes dictionary contains node names as keys and dictionaries
+as values. If <cite>recursive</cite> is True, each nested dictionary conforms
+to this structure. Empty dict values indicate no children. If
+<cite>pretty</cite>, the nodes dictionary is dumped to a string.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Dict or String</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="emma.io.sparseToHDF">
+<code class="sig-prename descclassname">emma.io.</code><code class="sig-name descname">sparseToHDF</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">sparse_mat</span></em>, <em class="sig-param"><span class="n">hdf_file</span></em>, <em class="sig-param"><span class="n">hdf_node_name</span></em><span class="sig-paren">)</span><a class="headerlink" href="#emma.io.sparseToHDF" title="Permalink to this definition">¶</a></dt>
+<dd><p>Store a csr matrix in HDF5</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sparse_mat</strong> (<em>sparse matrix</em>) – The sparse matrix to be stored. The data will be stored in <cite>csr</cite>
+format. See scipy.sparse module docs for sparse matrix formats.</p></li>
+<li><p><strong>hdf_file</strong> (<em>str</em>) – The path to the HDF5 file where the matrix data will be stored.</p></li>
+<li><p><strong>hdf_node_name</strong> (<em>str</em>) – The node prefix in the HDF5 hierarchy within the <cite>hdf_file</cite>.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="emma.io.loadSparse_HDF">
+<code class="sig-prename descclassname">emma.io.</code><code class="sig-name descname">loadSparse_HDF</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">hdf_file</span></em>, <em class="sig-param"><span class="n">hdf_node_name</span></em><span class="sig-paren">)</span><a class="headerlink" href="#emma.io.loadSparse_HDF" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load a sparse matrix from HDF5.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>hdf_file</strong> (<em>str</em>) – The path to the HDF5 file where the matrix data are stored.</p></li>
+<li><p><strong>hdf_node_name</strong> (<em>str</em>) – The node prefix in the HDF5 hierarchy within the <cite>hdf_file</cite>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>sparse_mat</strong> – A loaded sparse matrix. The matrix is always in csr format but
+can be easily converted to other sparse formats on the fly.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>scipy.sparse.csr.csr_matrix</p>
+</dd>
+</dl>
+</dd></dl>
+
+<ul class="simple">
+<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
+<li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
+<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
+</ul>
+</div>
+</div>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="index.html">Table of Contents</a></h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="README.html">Emma</a></li>
+<li class="toctree-l1"><a class="reference internal" href="decay.html">Decay</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">I/O</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#h5array">H5Array</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#functions">Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="ipf.html">IPF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="labeled_array.html">Labeled Arrays</a></li>
+<li class="toctree-l1"><a class="reference internal" href="od.html">OD (Origin-Destination)</a></li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="decay.html"
+                        title="previous chapter">Decay</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="ipf.html"
+                        title="next chapter">IPF</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/io.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ipf.html" title="IPF"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="decay.html" title="Decay"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">EMMA 0.1.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">I/O</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2020, Renaissance Planning.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.1.1.
+    </div>
+  </body>
+</html>

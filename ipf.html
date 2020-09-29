@@ -1,0 +1,389 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IPF &#8212; EMMA 0.1.0 documentation</title>
+    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Labeled Arrays" href="labeled_array.html" />
+    <link rel="prev" title="I/O" href="io.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="labeled_array.html" title="Labeled Arrays"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="io.html" title="I/O"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">EMMA 0.1.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">IPF</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <span class="target" id="module-emma.ipf"></span><div class="toctree-wrapper compound">
+</div>
+<div class="section" id="ipf">
+<h1>IPF<a class="headerlink" href="#ipf" title="Permalink to this headline">¶</a></h1>
+<p>The IPF module provides classes and functions to run iterative
+proportional fitting (IPF) procedures. IPF is used to refactor
+n-dimensional arrays iteratively in order to obtain marginal
+sums that align with provided marginal targets. When the marginal
+values closely resemble the marginal targets (within a convergence
+tolerance), the resulting ndarray object is returned. If the IPF
+process reaches the maximum number of iterations or successive
+iterations fail to meaningfully close the convergence gap,
+the IPF process exits, returning the ndarray as of the latest
+iteration. Convergence is determined based on the
+root-mean-squared-error between the marginals and the targets.</p>
+<p><strong>Classes and Functions</strong>
+- <cite>IPF</cite>: a function to setup and apply the IPF procedures for a</p>
+<blockquote>
+<div><p>n-dimensional labeled array.</p>
+</div></blockquote>
+<ul class="simple">
+<li><p><cite>IPF_problem_np</cite>: a class to store marginal target information
+and apply the IPF process to balance values in a labeled array.</p></li>
+<li><p><cite>IPF_problem_series</cite>: a child class of <cite>IPF_problem_np</cite> that
+facilitates application of the IPF process in series (iterating
+over rows in a pandas DataFrame).</p></li>
+<li><p><cite>buildSeedMatrix</cite>: a legacy function to construct a naive seed
+matrix as a numpy array. The seed then needs to be converted to
+labeled array for use in IPF functions and classes.</p></li>
+</ul>
+<div class="section" id="ipf-problem-np">
+<h2>IPF_problem_np<a class="headerlink" href="#ipf-problem-np" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="emma.ipf.IPF_problem_np">
+<em class="property">class </em><code class="sig-prename descclassname">emma.ipf.</code><code class="sig-name descname">IPF_problem_np</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">m_targets</span></em><span class="sig-paren">)</span><a class="headerlink" href="#emma.ipf.IPF_problem_np" title="Permalink to this definition">¶</a></dt>
+<dd><p>A class defining key parameters for an iterative-proportional fitting
+problem starting with a labeled array (n-dimensional seed matrix) and
+specifying marginal targets to guide factoring.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>m_targets</strong> (<em>[</em><em>array_like</em><em>,</em><em>..</em><em>] or </em><em>ndarray</em>) – Marginal target values along dimensional axes that guide
+the IPF’s factoring of matrix values in the attempt to
+acheive marginal values in line with the targets.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="emma.ipf.IPF_problem_np.solve">
+<code class="sig-name descname">solve</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">lb_array</span></em>, <em class="sig-param"><span class="n">converges_at</span><span class="o">=</span><span class="default_value">1e-05</span></em>, <em class="sig-param"><span class="n">max_iters</span><span class="o">=</span><span class="default_value">500</span></em>, <em class="sig-param"><span class="n">tolerance</span><span class="o">=</span><span class="default_value">1e-08</span></em>, <em class="sig-param"><span class="n">report_convergence</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#emma.ipf.IPF_problem_np.solve" title="Permalink to this definition">¶</a></dt>
+<dd><p>Solve the IPF problem.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lb_array</strong> (<em>LabeledArray</em>) – <p>A Labeled Array object on which to perform IPF.
+This is the “seed” matrix that will be balanced to acheive
+marginals that match (or approximate) <cite>m_targets</cite>.</p>
+<p>NOTE: The data in the array will be changed by the ipf process.
+Use the <cite>copy</cite> method of the LbArray class before running to
+preserve the input array.</p>
+</p></li>
+<li><p><strong>converges_at</strong> (<em>Float</em>) – Specificies a convergence value. If the percentage error
+between lb_array marginals and <cite>m_targets</cite> is less than or equal
+to this value, the IPF process exits, returning an adequately
+fitted matrix. Default is 1e-5</p></li>
+<li><p><strong>max_iters</strong> (<em>Int</em>) – Maximum number of iterations allowed. The IPF process exits
+after this number of iterations even if convergence has not been
+achieved. Default is 500.</p></li>
+<li><p><strong>tolerance</strong> (<em>Float</em>) – The IPF process exits if the difference between the convergence
+variables of two consecutive iterations is below this value.
+If there is minimal difference between two iterations, the process
+is unlikely to acheive substantially stronger convergence through
+additional interations. Default is 1e-8.</p></li>
+<li><p><strong>report_convergence</strong> (<em>Boolean</em>) – If False (default), only the rebalanced matrix is returned. If
+True, the details of the IPF are returned as a tuple.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>bal_mat</strong> (<em>numpy ndarray</em>) – A balanced matrix where marginals match (or approximate) the
+<cite>m_targets</cite> attribute.</p></li>
+<li><p><strong>number_of_iterations</strong> (<em>Int</em>) – If <cite>report_convergence</cite> is True, the second value returned is the
+number of iterations completed by the IPF process</p></li>
+<li><p><strong>convergence</strong> (<em>Boolean</em>) – If <cite>report_convergence</cite> is True, the third value returned is a
+boolean flag indicating whether convergence was acheived.</p></li>
+<li><p><strong>narrowing</strong> (<em>Boolean</em>) – If <cite>report_convergence</cite> is True, the fourth value returned is a
+boolean flag indicating whether convergence was narrowing in the
+final iteration. If False, the IPF has exited due to minimal
+improvement in convergence in two consecutve runs.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="ipf-problem-series">
+<h2>IPF_problem_series<a class="headerlink" href="#ipf-problem-series" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="emma.ipf.IPF_problem_series">
+<em class="property">class </em><code class="sig-prename descclassname">emma.ipf.</code><code class="sig-name descname">IPF_problem_series</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">targets_df</span></em>, <em class="sig-param"><span class="n">index_cols</span></em>, <em class="sig-param"><span class="n">dim_cols</span></em>, <em class="sig-param"><span class="n">use_index</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#emma.ipf.IPF_problem_series" title="Permalink to this definition">¶</a></dt>
+<dd><p>A class defining key paramters for an iterative-proportional fitting
+problem starting with an n-dimensional seed matrix (lb_array) and
+speciying columns in a pandas data frame that provide marginal
+targets to guide factoring.</p>
+<p>This is a child class of <cite>IPF_problem_np</cite> and simplifies the
+specification of marginal targets by providing them in a pandas
+data frame. This facilitates repetitive applications of the IPF
+process across many features stored as rows in the “targets”
+data frame.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>targets_df</strong> (<em>pandas data frame</em>) – Data frame from which to lookup marginal targets to guide the
+IPF process.</p></li>
+<li><p><strong>index_cols</strong> (<em>String</em><em> or </em><em>[</em><em>String</em><em>,</em><em>..</em><em>]</em>) – Specify column(s) in the data frame to uniquely identify each
+row. IPF results will be stored in a data frame containing these
+same index columns. If <cite>use_index</cite> is True, you can specify here
+the index labels to include or set <cite>index_cols=None</cite> to include
+all labels.</p></li>
+<li><p><strong>dim_cols</strong> (<em>[</em><em>[</em><em>String</em><em>,</em><em>..</em><em>]</em><em>]</em>) – A list of column name lists. Each inner list item specifies a
+column in <cite>targets_df</cite> corresponding to a marginal target guiding
+the IPF process; each list of columns defines a group corresponding
+to the dimensions of the seed <cite>matrix</cite>.</p></li>
+<li><p><strong>use_index</strong> (<em>Boolean</em><em>, </em><em>default=False</em>) – If True, the data frame’s index is used to determine index colums
+identifying each row.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#emma.ipf.IPF_problem_np" title="emma.ipf.IPF_problem_np"><code class="xref py py-class docutils literal notranslate"><span class="pre">IPF_problem_np</span></code></a></p>
+</div>
+<dl class="py method">
+<dt id="emma.ipf.IPF_problem_series.solve">
+<code class="sig-name descname">solve</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">lb_array</span></em>, <em class="sig-param"><span class="n">converges_at</span><span class="o">=</span><span class="default_value">1e-05</span></em>, <em class="sig-param"><span class="n">max_iters</span><span class="o">=</span><span class="default_value">500</span></em>, <em class="sig-param"><span class="n">tolerance</span><span class="o">=</span><span class="default_value">1e-08</span></em>, <em class="sig-param"><span class="n">report_convergence</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#emma.ipf.IPF_problem_series.solve" title="Permalink to this definition">¶</a></dt>
+<dd><p>Solve the IPF problem iteratively for all rows in <cite>targets_df</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lb_array</strong> (<em>LabeledArray</em>) – A Labeled Array object on which to perform IPF.
+This is the “seed” matrix that will be balanced to acheive
+marginals that match (or approximate) <cite>targets_df</cite>.</p></li>
+<li><p><strong>converges_at</strong> (<em>Float</em>) – Specificies a convergence value. If the percentage error
+between matrix marginals and <cite>m_targets</cite> is less than or equal
+to this value, the IPF process exits, returning an adequately
+fitted matrix. Default is 1e-5</p></li>
+<li><p><strong>max_iters</strong> (<em>Int</em>) – Maximum number of iterations allowed. The IPF process exits
+after this number of iterations even if convergence has not been
+achieved. Default is 500.</p></li>
+<li><p><strong>tolerance</strong> (<em>Float</em>) – The IPF process exits if the difference between the convergence
+variables of two consecutive iterations is below this value.
+If there is minimal difference between two iterations, the process
+is unlikely to acheive substantially stronger convergence through
+additional interations. Default is 1e-8.</p></li>
+<li><p><strong>report_convergence</strong> (<em>Boolean</em>) – If False (default), only the rebalanced matrix is returned. If
+True, the details of the IPF are returned as a tuple.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="functions">
+<h2>Functions<a class="headerlink" href="#functions" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt id="emma.ipf.IPF">
+<code class="sig-prename descclassname">emma.ipf.</code><code class="sig-name descname">IPF</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">lb_array</span></em>, <em class="sig-param"><span class="n">m_targets</span></em>, <em class="sig-param"><span class="n">key_dims</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">converges_at</span><span class="o">=</span><span class="default_value">1e-05</span></em>, <em class="sig-param"><span class="n">max_iters</span><span class="o">=</span><span class="default_value">500</span></em>, <em class="sig-param"><span class="n">tolerance</span><span class="o">=</span><span class="default_value">1e-08</span></em>, <em class="sig-param"><span class="n">report_convergence</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">shadows</span><span class="o">=</span><span class="default_value">[]</span></em>, <em class="sig-param"><span class="n">logger</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">log_axes</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#emma.ipf.IPF" title="Permalink to this definition">¶</a></dt>
+<dd><p>Solve the IPF problem.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lb_array</strong> (<em>LabeledArray</em>) – <p>A Labeled Array object on which to perform IPF.
+This is the “seed” matrix that will be balanced to acheive
+marginals that match (or approximate) <cite>m_targets</cite>.</p>
+<p>NOTE: The data in the array will be changed by the ipf process.
+Use the <cite>copy</cite> method of the LbArray class before running to
+preserve the input array.</p>
+</p></li>
+<li><p><strong>m_targets</strong> (<em>[</em><em>array_like</em><em>,</em><em>..</em><em>] or </em><em>ndarray</em>) – Marginal target values along dimensional axes that guide
+the IPF’s factoring of matrix values in the attempt to
+acheive marginal values in line with the targets.</p></li>
+<li><p><strong>key_dims</strong> (<em>[</em><a class="reference internal" href="labeled_array.html#emma.labeled_array.LbAxis" title="emma.labeled_array.LbAxis"><em>LbAxis</em></a><em>, </em><em>String</em><em>, </em><em>Integer</em><em>,</em><em>..</em><em>]</em><em>, </em><em>default=None</em>) – If given, the IPF will focus only on specified dimensions of the
+labeled array. Other dimensional values will be not factor into
+the balancing procedure. The number of key dims must match the
+number of <cite>m_targets</cite>. If None, all dimensions of the labeled
+array are factored in balancing.</p></li>
+<li><p><strong>converges_at</strong> (<em>Float</em>) – Specificies a convergence value. If the percentage error
+between lb_array marginals and <cite>m_targets</cite> is less than or equal
+to this value, the IPF process exits, returning an adequately
+fitted matrix. Default is 1e-5</p></li>
+<li><p><strong>max_iters</strong> (<em>Int</em>) – Maximum number of iterations allowed. The IPF process exits
+after this number of iterations even if convergence has not been
+achieved. Default is 500.</p></li>
+<li><p><strong>tolerance</strong> (<em>Float</em>) – The IPF process exits if the difference between the convergence
+variables of two consecutive iterations is below this value.
+If there is minimal difference between two iterations, the process
+is unlikely to acheive substantially stronger convergence through
+additional interations. Default is 1e-8.</p></li>
+<li><p><strong>report_convergence</strong> (<em>Boolean</em>) – If False (default), only the rebalanced matrix is returned. If
+True, the details of the IPF are returned as a tuple.</p></li>
+<li><p><strong>shadows</strong> (<em>[</em><a class="reference internal" href="labeled_array.html#emma.labeled_array.Shadow" title="emma.labeled_array.Shadow"><em>Shadow</em></a><em>,</em><em>..</em><em>]</em><em>, </em><em>default=</em><em>[</em><em>]</em>) – Shadow arrays are modified in the IPF process in the same way
+<cite>lb_array</cite> is modified. The factors used to adjust <cite>lb_array</cite>
+are inherited by the shadow array based on each shadow’s
+<cite>ref_level</cite> (and <cite>leader_level</cite> if needed).</p></li>
+<li><p><strong>logger</strong> (<em>logger</em>) – If given, the logger will record info about the IPF process</p></li>
+<li><p><strong>log_axes</strong> (<em>[</em><em>String</em><em>,</em><em>..</em><em>]</em>) – A list of axes to sum by when logging (if <cite>logger</cite> is not None).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>bal_mat</strong> (<em>LbArray</em>) – A balanced matrix where marginals match (or approximate) the
+<cite>m_targets</cite> attribute.</p></li>
+<li><p><strong>number_of_iterations</strong> (<em>Int</em>) – If <cite>report_convergence</cite> is True, the second value returned is the
+number of iterations completed by the IPF process</p></li>
+<li><p><strong>convergence</strong> (<em>Boolean</em>) – If <cite>report_convergence</cite> is True, the third value returned is a
+boolean flag indicating whether convergence was acheived.</p></li>
+<li><p><strong>narrowing</strong> (<em>Boolean</em>) – If <cite>report_convergence</cite> is True, the fourth value returned is a
+boolean flag indicating whether convergence was narrowing in the
+final iteration. If False, the IPF has exited due to minimal
+improvement in convergence in two consecutve runs.</p></li>
+<li><p><strong>(shadows</strong> (<em>[LbArray,…])</em>) – If <cite>shadows</cite> are provided, they are nor returned, but that have
+been modified in the IPF process.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="emma.ipf.buildSeedMatrix">
+<code class="sig-prename descclassname">emma.ipf.</code><code class="sig-name descname">buildSeedMatrix</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">dimensions</span></em>, <em class="sig-param"><span class="n">axis_labels</span></em>, <em class="sig-param"><span class="n">exclusions</span><span class="o">=</span><span class="default_value">{}</span></em><span class="sig-paren">)</span><a class="headerlink" href="#emma.ipf.buildSeedMatrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a simple seed matrix for IPF processing based on the given
+dimensions. The default simple seed matrix assumes a value of 1.0
+for each cell. Exlcusions may be specified to set seed values to
+zeros for particular axis intersections.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dimensions</strong> (<em>[</em><em>String</em><em>,</em><em>..</em><em>]</em>) – A list of dimension names. The number of dimensions in the seed
+matrix will equal the length of this list.</p></li>
+<li><p><strong>axis_labels</strong> (<em>{String:</em><em> [</em><em>String</em><em>,</em><em>..</em><em>]</em><em>}</em>) – A dictionary with keys matching values in the <cite>dimensions</cite> list
+and values each containing a list of labels identifying axis items
+in that dimension.</p></li>
+<li><p><strong>exclusions</strong> (<em>{</em><em>(</em><em>String</em><em>, </em><em>String</em><em>)</em><em>: {String:</em><em> [</em><em>String</em><em>,</em><em>..</em><em>]</em><em>}}</em>) – <p>A nested dictionary definining axis intersections where seed values
+should be set to zero. Keys in the exclusions dictionary are tuples
+of dimension, axis-label pairs.  Values are dictionaries with keys
+containing dimension names and values listing axis labels.</p>
+<p>For example: {(“HH size”, “HH1”): {“Workers”: [“Wrk2”, “Wrk3p”]}}
+would indicate that in the household size dimension, households with
+size 1 are mutually exclusive with households having 2 or more
+workers.</p>
+</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<ul class="simple">
+<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
+<li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
+<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
+</ul>
+</div>
+</div>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="index.html">Table of Contents</a></h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="README.html">Emma</a></li>
+<li class="toctree-l1"><a class="reference internal" href="decay.html">Decay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="io.html">I/O</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">IPF</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#ipf-problem-np">IPF_problem_np</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#ipf-problem-series">IPF_problem_series</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#functions">Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="labeled_array.html">Labeled Arrays</a></li>
+<li class="toctree-l1"><a class="reference internal" href="od.html">OD (Origin-Destination)</a></li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="io.html"
+                        title="previous chapter">I/O</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="labeled_array.html"
+                        title="next chapter">Labeled Arrays</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/ipf.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="labeled_array.html" title="Labeled Arrays"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="io.html" title="I/O"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">EMMA 0.1.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">IPF</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2020, Renaissance Planning.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.1.1.
+    </div>
+  </body>
+</html>
