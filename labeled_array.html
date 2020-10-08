@@ -51,12 +51,10 @@
 <p>Labeled arrays provide conveniences for accessing data in ndarrays
 by dimension names and labels. They are the primary data structure
 used throughout the emma modules.</p>
-<p><strong>Classes and Functions</strong>
-- <cite>LbAxis</cite>: defines an array axis with an axis name and labels. Facilitiates</p>
-<blockquote>
-<div><p>label-based array indexing, slicing, querying, and assignment.</p>
-</div></blockquote>
+<p><strong>Classes and Functions</strong></p>
 <ul class="simple">
+<li><p><cite>LbAxis</cite>: defines an array axis with an axis name and labels. Facilitiates
+label-based array indexing, slicing, querying, and assignment.</p></li>
 <li><p><cite>Impression</cite>: a collection of <cite>LbAxis</cite> objects that implicitly define an
 array’s structure. Impressions are a labeled array building block, having
 structure but no data. Includes methods to facilitate array construction
@@ -379,7 +377,7 @@ labels “bar” and “baz” in the “foo” dimension. These lookups can be 
 such that <cite>lb_array.foo[“bar”].spam[“ham”, “eggs”].etc[“ad nauseum”]</cite></p>
 <p>Chained lookups call the <cite>take</cite> method, which often provides more
 succint ways to retrieve select data
-(<a href="#id1"><span class="problematic" id="id2">`</span></a>lb_array.take(foo=”bar”, spam=[“ham”, “eggs”], etc=”ad nauseum”))</p>
+(<cite>lb_array.take(foo=”bar”, spam=[“ham”, “eggs”], etc=”ad nauseum”)</cite>)</p>
 </div></blockquote>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -843,8 +841,8 @@ casting.</p></li>
 <li><p><strong>values</strong> (<em>1d array-like</em>) – The values to cast into the dimensions defined by <cite>labeled_array</cite></p></li>
 <li><p><strong>inplace</strong> (<em>Boolean</em><em>, </em><em>defaul=False</em>) – If True, <cite>labeled_array</cite>’s values are modified in place via the
 casting. Otherwise, a new LbArray is returned with casted values.</p></li>
-<li><p><strong>**kwargs</strong> – Keyword arguments can be used for the initialization of a new
-LbArray when casting (if <a href="#id3"><span class="problematic" id="id4">`</span></a>inplace`=False). This is useful if
+<li><p><strong>kwargs</strong> – Keyword arguments can be used for the initialization of a new
+LbArray when casting (if <a href="#id1"><span class="problematic" id="id2">`</span></a>inplace`=False). This is useful if
 casting into an H5 file, for example.</p></li>
 </ul>
 </dd>

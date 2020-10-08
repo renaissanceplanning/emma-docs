@@ -54,20 +54,19 @@ of time, monetary costs, etc.). Decay rates are utilized in the calculation
 of accessibility scores and in trip distribution procedures.</p>
 <p>This module provides classes and functions for configuring and applying
 decay rates for use in emma modeling.</p>
-<p><strong>Classes and Functions</strong>
-- <cite>Decay</cite>: a base class defining the basic parameters of decay rates.</p>
-<blockquote>
-<div><p>Various forms of decay rates, with distinct forms and applications,
-are defined as child classes:</p>
+<p><strong>Classes and Functions</strong></p>
 <ul class="simple">
+<li><p><cite>Decay</cite>: a base class defining the basic parameters of decay rates.
+Various forms of decay rates, with distinct forms and applications,
+are defined as child classes:</p>
+<ul>
 <li><p><cite>LinDecay</cite>: linear</p></li>
 <li><p><cite>ExpDecay</cite>: exponential</p></li>
 <li><p><cite>LogDecay</cite>: logistic</p></li>
 <li><p><cite>LogNormalDecay</cite>: lognormal (probability density function)</p></li>
 <li><p><cite>LogNormalDecay_cdf</cite>: lognormal (cumulative density function)</p></li>
 </ul>
-</div></blockquote>
-<ul class="simple">
+</li>
 <li><p><cite>dictToDecay</cite>: constructs a Decay object from a dictionary.</p></li>
 <li><p><cite>decayToJson</cite>: dumps a <cite>Decay</cite> object to a json file for storage</p></li>
 <li><p><cite>jsonToDecay</cite>: creates a <cite>Decay</cite> object from a json file</p></li>

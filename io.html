@@ -57,14 +57,12 @@ numerous processes. Emma uses the H5 file format and pytables to store arrays
 on-disk and efficiently consume and manipulate these data for travel analysis.
 The io module provides classes and functions to make these operations as
 seamless as possible.</p>
-<p><strong>Classes and Functions</strong>
-- <cite>H5Array</cite>: A class that manages connections to an H5 file. Users do not</p>
-<blockquote>
-<div><p>need to implement this class directly. Rather, the <cite>LbArray</cite> and <cite>Skim</cite>
-classes use it when their <cite>data</cite> attributes refer to on-disk arrays in
-H5 files.</p>
-</div></blockquote>
+<p><strong>Classes and Functions</strong></p>
 <ul class="simple">
+<li><p><cite>H5Array</cite>: A class that manages connections to an H5 file. Users do not
+need to implement this class directly. Rather, the <cite>LbArray</cite> and <cite>Skim</cite>
+classes use it when their <cite>data</cite> attributes refer to on-disk arrays in
+H5 files.</p></li>
 <li><p><cite>initH5Array</cite>: A function that initializes an on-disk array. Users do
 no need to call this function directly. Rather, the <cite>LbArray</cite> and <cite>Skim</cite>
 classes use it to intialize on-disk arrays in H5 files as need when

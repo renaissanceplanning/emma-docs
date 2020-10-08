@@ -55,15 +55,13 @@ in the h5 file format, for efficient on-disk processing.</p>
 - efficient I/O between tabular OD data and matrices.
 - efficient replication of matrix structures and/or values for OD processing.
 - consistent processing idioms for vectorized formula applications.</p>
-<p><strong>Classes and functions</strong>
-- <cite>Skim</cite>: stores OD data as a specialized labeled array. Skims always have</p>
-<blockquote>
-<div><p>congruent <em>i</em> (origins) and <em>j</em> (destinations) dimensions. Skim is a child
+<p><strong>Classes and functions</strong></p>
+<ul class="simple">
+<li><p><cite>Skim</cite>: stores OD data as a specialized labeled array. Skims always have
+congruent <em>i</em> (origins) and <em>j</em> (destinations) dimensions. Skim is a child
 class of <cite>LbArray</cite>, inheriting (or in a few cases overloading) its attributes
 and methods while adding a handful of distinct attributes and methods to
-ensure preservation of the <em>i</em> and <em>j</em> dimensions.</p>
-</div></blockquote>
-<ul class="simple">
+ensure preservation of the <em>i</em> and <em>j</em> dimensions.</p></li>
 <li><p>The <cite>loadOD_…</cite> family of functions supports reading origin-destination
 data from a long table into a Skim object. The skim object must be
 already initialized. Supported formats include: csv (most performant),
